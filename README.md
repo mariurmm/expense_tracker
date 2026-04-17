@@ -1,17 +1,196 @@
-# expense_tracker
+<div align="center">
 
-A new Flutter project.
+# 💸 Где Деньги?
 
-## Getting Started
+### Учёт личных финансов
 
-This project is a starting point for a Flutter application.
+*Простое и удобное мобильное приложение для управления личным бюджетом*
 
-A few resources to get you started if this is your first Flutter project:
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+![Hive](https://img.shields.io/badge/Hive-локальная%20БД-FF7043?style=for-the-badge)
+![Provider](https://img.shields.io/badge/Provider-state%20management-7C4DFF?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+</div>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 📱 О приложении
+
+**«Где Деньги?»** — мобильное приложение для учёта личных финансов, разработанное на Flutter. Позволяет контролировать доходы и расходы, анализировать траты по категориям и вести полную историю транзакций — всё это без подключения к интернету и без регистрации.
+
+---
+
+## ✨ Возможности
+
+| Функция | Описание |
+|---|---|
+| 💰 **Баланс и транзакции** | Мгновенный обзор текущего баланса, доходов и расходов |
+| 📋 **История операций** | Полная история с фильтрацией по неделям, месяцам и годам |
+| 📊 **Отчёты и графики** | Диаграммы расходов по категориям и сравнение доходов/расходов |
+| 🗂️ **Категории** | Встроенные и пользовательские категории для гибкой классификации |
+| 💱 **Мультивалютность** | Поддержка 5 валют с корректными символами и форматированием |
+| 📤 **Экспорт в CSV** | Выгрузка данных с итоговыми строками и возможностью поделиться |
+| 🎨 **Material Design 3** | Современный интерфейс с плавными анимациями |
+| 📴 **Работа офлайн** | Все данные хранятся локально — интернет не нужен |
+
+---
+
+## 📸 Экраны приложения
+
+```
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│   🏠 Главная    │  │  📋 Транзакции  │  │   📊 Отчёты     │  │  ⚙️ Настройки   │
+│                 │  │                 │  │                 │  │                 │
+│  Баланс: ₽      │  │  Фильтр:        │  │  Pie-chart      │  │  Валюта         │
+│  ┌───────────┐  │  │  Нед/Мес/Год   │  │  по категориям  │  │  Профиль        │
+│  │ +Доходы   │  │  │                 │  │                 │  │  Экспорт CSV    │
+│  │ −Расходы  │  │  │  Группировка    │  │  Bar-chart      │  │  Сброс данных   │
+│  └───────────┘  │  │  по датам       │  │  доход/расход   │  │                 │
+│  Последние      │  │                 │  │                 │  │                 │
+│  операции       │  │  Навигация      │  │  Период:        │  │                 │
+│                 │  │  по периодам    │  │  Нед/Мес/Год   │  │                 │
+└─────────────────┘  └─────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+---
+
+## 🏗️ Архитектура
+
+Проект построен по принципам **Clean Architecture** с чётким разделением слоёв:
+
+```
+lib/
+├── core/                    # Общие утилиты, тема, константы
+│   ├── constants/           # Цвета, строки, категории
+│   ├── enums/               # PeriodFilter (week/month/year)
+│   ├── theme/               # Material 3 тема приложения
+│   ├── services/            # ExportService — генерация CSV
+│   ├── utils/               # Форматирование дат и валют
+│   └── widgets/             # Переиспользуемые виджеты
+│
+├── data/                    # Слой данных
+│   ├── datasources/         # Hive — локальное хранилище
+│   ├── models/              # Модели с Hive-адаптерами
+│   └── repositories/        # Паттерн Repository
+│
+├── features/                # Экраны приложения
+│   ├── home/                # Главный экран
+│   ├── transactions/        # Список транзакций + форма добавления
+│   ├── reports/             # Аналитика и графики
+│   └── settings/            # Настройки
+│
+└── providers/               # Управление состоянием (Provider)
+    ├── transaction_provider.dart
+    ├── category_provider.dart
+    ├── settings_provider.dart
+    └── reports_provider.dart
+```
+
+---
+
+## 🛠️ Технологии
+
+### Хранение данных
+- **[Hive](https://pub.dev/packages/hive)** `^2.2.3` — высокопроизводительная локальная NoSQL-база данных
+
+### Управление состоянием
+- **[Provider](https://pub.dev/packages/provider)** `^6.1.2` — реактивное управление состоянием через `ChangeNotifier`
+
+### Визуализация
+- **[fl_chart](https://pub.dev/packages/fl_chart)** `^0.68.0` — круговые и столбчатые диаграммы
+- **[flutter_staggered_animations](https://pub.dev/packages/flutter_staggered_animations)** `^1.1.1` — анимации списков
+
+### Утилиты
+- **[intl](https://pub.dev/packages/intl)** `^0.20.2` — форматирование дат и чисел
+- **[uuid](https://pub.dev/packages/uuid)** `^4.3.3` — генерация уникальных идентификаторов
+- **[csv](https://pub.dev/packages/csv)** `^6.0.0` — экспорт данных в CSV
+- **[share_plus](https://pub.dev/packages/share_plus)** `^9.0.0` — шаринг файлов через системное меню
+- **[path_provider](https://pub.dev/packages/path_provider)** `^2.1.3` — доступ к файловой системе
+- **[flutter_native_splash](https://pub.dev/packages/flutter_native_splash)** `^2.4.0` — нативный сплэш-экран
+
+---
+
+## 🚀 Запуск проекта
+
+### Требования
+
+- Flutter SDK `>=3.0.0`
+- Dart SDK `>=3.0.0`
+- Android Studio / VS Code с плагином Flutter
+
+### Установка
+
+```bash
+# 1. Клонировать репозиторий
+git clone https://github.com/mariurmm/expense_tracker.git
+cd expense_tracker
+
+# 2. Установить зависимости
+flutter pub get
+
+# 3. Сгенерировать Hive-адаптеры (если отсутствуют .g.dart файлы)
+flutter packages pub run build_runner build --delete-conflicting-outputs
+
+# 4. Запустить приложение
+flutter run
+```
+
+### Сборка релиза
+
+```bash
+# Android APK
+flutter build apk --release
+
+# Android App Bundle
+flutter build appbundle --release
+```
+
+---
+
+## 📊 Поддерживаемые валюты
+
+| Символ | Валюта |
+|:---:|---|
+| ₽ | Российский рубль (RUB) |
+| $ | Доллар США (USD) |
+| € | Евро (EUR) |
+| £ | Фунт стерлингов (GBP) |
+| ¥ | Японская иена (JPY) |
+
+---
+
+## 🗂️ Встроенные категории
+
+**Расходы:** Еда и напитки, Транспорт, Жильё, Здоровье, Развлечения, Одежда, Образование, Путешествия, Другое
+
+**Доходы:** Зарплата, Фриланс, Инвестиции, Подарки, Другое
+
+> Помимо встроенных категорий можно создавать собственные прямо в приложении.
+
+---
+
+## 🤝 Вклад в проект
+
+Вклад приветствуется! Если вы нашли баг или хотите предложить улучшение:
+
+1. Форкните репозиторий
+2. Создайте ветку: `git checkout -b feature/название-функции`
+3. Зафиксируйте изменения: `git commit -m 'feat: добавить новую функцию'`
+4. Отправьте в ветку: `git push origin feature/название-функции`
+5. Откройте Pull Request
+
+---
+
+## 📄 Лицензия
+
+Этот проект распространяется под лицензией **MIT**. Подробности в файле [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+Сделано с ❤️ на Flutter
+
+</div>
