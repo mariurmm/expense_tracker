@@ -8,7 +8,7 @@ part of 'category_model.dart';
 
 class CategoryAdapter extends TypeAdapter<Category> {
   @override
-  final int typeId = 2;
+  final typeId = 2;
 
   @override
   Category read(BinaryReader reader) {
@@ -19,8 +19,8 @@ class CategoryAdapter extends TypeAdapter<Category> {
     return Category(
       id: fields[0] as String,
       name: fields[1] as String,
-      icon: fields[2] as int,
-      color: fields[3] as int,
+      icon: (fields[2] as num).toInt(),
+      color: (fields[3] as num).toInt(),
       isCustom: fields[4] as bool,
     );
   }
@@ -51,3 +51,25 @@ class CategoryAdapter extends TypeAdapter<Category> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$CategoryImpl _$$CategoryImplFromJson(Map<String, dynamic> json) =>
+    _$CategoryImpl(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      icon: (json['icon'] as num).toInt(),
+      color: (json['color'] as num).toInt(),
+      isCustom: json['isCustom'] as bool,
+    );
+
+Map<String, dynamic> _$$CategoryImplToJson(_$CategoryImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'icon': instance.icon,
+      'color': instance.color,
+      'isCustom': instance.isCustom,
+    };

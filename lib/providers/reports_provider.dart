@@ -14,17 +14,17 @@ import '../data/repositories/transaction_repository.dart';
 // ---------------------------------------------------------------------------
 
 class PieSliceData {
-  final String categoryName;
-  final double amount;
-  final double percentage;
-  final Color color;
-
   const PieSliceData({
     required this.categoryName,
     required this.amount,
     required this.percentage,
     required this.color,
   });
+
+  final String categoryName;
+  final double amount;
+  final double percentage;
+  final Color color;
 }
 
 // ---------------------------------------------------------------------------
@@ -32,10 +32,10 @@ class PieSliceData {
 // ---------------------------------------------------------------------------
 
 class ReportsProvider extends ChangeNotifier {
+  ReportsProvider(this._txRepo, this._catRepo);
+
   final TransactionRepository _txRepo;
   final CategoryRepository _catRepo;
-
-  ReportsProvider(this._txRepo, this._catRepo);
 
   PeriodFilter _periodFilter = PeriodFilter.month;
   List<Transaction> _allTransactions = [];
@@ -44,8 +44,8 @@ class ReportsProvider extends ChangeNotifier {
   List<PieSliceData> _pieSlices = [];
   List<BarChartGroupData> _barGroups = [];
   List<String> _barLabels = [];
-  double _totalExpense = 0.0;
-  double _maxBarValue = 0.0;
+  double _totalExpense = 0;
+  double _maxBarValue = 0;
 
   // ---- public getters ----
 
@@ -57,7 +57,7 @@ class ReportsProvider extends ChangeNotifier {
   bool get hasExpenses => _pieSlices.isNotEmpty;
 
   /// Upper bound for the bar chart Y axis (with 25 % head-room).
-  double get maxY => _maxBarValue > 0 ? _maxBarValue * 1.25 : 1000.0;
+  double get maxY => _maxBarValue > 0 ? _maxBarValue * 1.25 : 1000;
 
   // ---- public methods ----
 
@@ -81,16 +81,16 @@ class ReportsProvider extends ChangeNotifier {
     final filtered = _filterTransactions();
     _totalExpense = filtered
         .where((t) => t.type == TransactionType.expense)
-        .fold(0.0, (s, t) => s + t.amount);
+        .fold<double>(0, (s, t) => s + t.amount);
     _pieSlices = _buildPieSlices(filtered);
     _barLabels = _buildBarLabels();
     _barGroups = _buildBarGroups(filtered);
     _maxBarValue = _barGroups.isEmpty
-        ? 0.0
+        ? 0
         : _barGroups
             .expand((g) => g.barRods)
             .map((r) => r.toY)
-            .fold(0.0, (m, v) => v > m ? v : m);
+            .fold<double>(0, (m, v) => v > m ? v : m);
   }
 
   List<Transaction> _filterTransactions() {
@@ -124,7 +124,7 @@ class ReportsProvider extends ChangeNotifier {
     }
     if (totals.isEmpty) return [];
 
-    final total = totals.values.fold(0.0, (s, v) => s + v);
+    final total = totals.values.fold<double>(0, (s, v) => s + v);
 
     return totals.entries.map((e) {
       final cat = _categories.firstWhere(
@@ -198,16 +198,19 @@ class ReportsProvider extends ChangeNotifier {
 
   List<BarChartGroupData> _buildMonthBars(
       List<Transaction> txns, DateTime now) {
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
     final weeks = _weeksInMonth(now.year, now.month);
     return List.generate(weeks, (wi) {
       final dayFrom = wi * 7 + 1;
-      final dayTo = (wi + 1) * 7;
+      final dayTo = ((wi + 1) * 7).clamp(1, daysInMonth);
+      final daysInChunk = dayTo - dayFrom + 1;
       final week = txns.where((t) =>
           t.date.year == now.year &&
           t.date.month == now.month &&
           t.date.day >= dayFrom &&
           t.date.day <= dayTo);
-      return _makeGroup(wi, week.toList(), wide: true);
+      return _makeGroup(wi, week.toList(), wide: true,
+          normalize: daysInChunk);
     });
   }
 
@@ -222,13 +225,16 @@ class ReportsProvider extends ChangeNotifier {
   }
 
   BarChartGroupData _makeGroup(int x, List<Transaction> txns,
-      {required bool wide}) {
+      {required bool wide, int normalize = 1}) {
+    final divisor = normalize.toDouble();
     final income = txns
-        .where((t) => t.type == TransactionType.income)
-        .fold(0.0, (s, t) => s + t.amount);
+            .where((t) => t.type == TransactionType.income)
+            .fold<double>(0, (s, t) => s + t.amount) /
+        divisor;
     final expense = txns
-        .where((t) => t.type == TransactionType.expense)
-        .fold(0.0, (s, t) => s + t.amount);
+            .where((t) => t.type == TransactionType.expense)
+            .fold<double>(0, (s, t) => s + t.amount) /
+        divisor;
     final w = wide ? 10.0 : 7.0;
     return BarChartGroupData(
       x: x,
@@ -254,6 +260,6 @@ class ReportsProvider extends ChangeNotifier {
 
   int _weeksInMonth(int year, int month) {
     final days = DateTime(year, month + 1, 0).day; // last day of month
-    return (days / 7.0).ceil();
+    return (days / 7).ceil();
   }
 }

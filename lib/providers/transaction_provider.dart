@@ -2,11 +2,16 @@ import 'package:flutter/foundation.dart';
 import '../core/enums/period_filter.dart';
 import '../data/models/transaction_model.dart';
 import '../data/repositories/transaction_repository.dart';
+import 'reports_provider.dart';
 
 class TransactionProvider extends ChangeNotifier {
-  final TransactionRepository _repository;
-
   TransactionProvider(this._repository);
+
+  final TransactionRepository _repository;
+  ReportsProvider? _reportsProvider;
+
+  ReportsProvider? get reportsProvider => _reportsProvider;
+  set reportsProvider(ReportsProvider value) => _reportsProvider = value;
 
   List<Transaction> _allTransactions = [];
   List<Transaction> _monthTransactions = [];
@@ -28,22 +33,22 @@ class TransactionProvider extends ChangeNotifier {
   double get totalBalance {
     final income = _allTransactions
         .where((t) => t.type == TransactionType.income)
-        .fold(0.0, (s, t) => s + t.amount);
+        .fold<double>(0, (s, t) => s + t.amount);
     final expense = _allTransactions
         .where((t) => t.type == TransactionType.expense)
-        .fold(0.0, (s, t) => s + t.amount);
+        .fold<double>(0, (s, t) => s + t.amount);
     return income - expense;
   }
 
   /// Income for the currently selected month (used on HomeScreen).
   double get totalIncome => _monthTransactions
       .where((t) => t.type == TransactionType.income)
-      .fold(0.0, (s, t) => s + t.amount);
+      .fold<double>(0, (s, t) => s + t.amount);
 
   /// Expense for the currently selected month (used on HomeScreen).
   double get totalExpense => _monthTransactions
       .where((t) => t.type == TransactionType.expense)
-      .fold(0.0, (s, t) => s + t.amount);
+      .fold<double>(0, (s, t) => s + t.amount);
 
   /// Transactions filtered by [_periodFilter] — used in TransactionsScreen.
   List<Transaction> get filteredTransactions {
@@ -77,11 +82,13 @@ class TransactionProvider extends ChangeNotifier {
   Future<void> addTransaction(Transaction transaction) async {
     await _repository.addTransaction(transaction);
     loadTransactions();
+    _reportsProvider?.load();
   }
 
   Future<void> deleteTransaction(String id) async {
     await _repository.deleteTransaction(id);
     loadTransactions();
+    _reportsProvider?.load();
   }
 
   void setPeriodFilter(PeriodFilter filter) {

@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import '../data/repositories/settings_repository.dart';
 
 class SettingsProvider extends ChangeNotifier {
-  final SettingsRepository _repository;
-
   SettingsProvider(this._repository);
+
+  final SettingsRepository _repository;
 
   String _userName = '';
   String _currencySymbol = '₸';

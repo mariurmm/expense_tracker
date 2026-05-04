@@ -1,6 +1,9 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
+import 'package:injectable/injectable.dart';
+
 import '../models/category_model.dart';
 
+@lazySingleton
 class CategoryLocalDatasource {
   static const String boxName = 'categories';
 

@@ -9,20 +9,20 @@ enum EmptyIllustration { transactions, reports, categories }
 // ── Reusable empty-state widget ───────────────────────────────────────────────
 
 class EmptyStateWidget extends StatelessWidget {
+  const EmptyStateWidget({
+    required this.illustration,
+    required this.title,
+    required this.subtitle,
+    super.key,
+    this.buttonLabel,
+    this.onButtonPressed,
+  });
+
   final EmptyIllustration illustration;
   final String title;
   final String subtitle;
   final String? buttonLabel;
   final VoidCallback? onButtonPressed;
-
-  const EmptyStateWidget({
-    super.key,
-    required this.illustration,
-    required this.title,
-    required this.subtitle,
-    this.buttonLabel,
-    this.onButtonPressed,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +85,9 @@ class EmptyStateWidget extends StatelessWidget {
 // ── CustomPainter — draws all three illustration variants ─────────────────────
 
 class _EmptyIllustrationPainter extends CustomPainter {
-  final EmptyIllustration type;
   const _EmptyIllustrationPainter(this.type);
+
+  final EmptyIllustration type;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -155,10 +156,11 @@ class _EmptyIllustrationPainter extends CustomPainter {
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
-    final ph = 8.0;
-    final pw = 8.0;
-    canvas.drawLine(Offset(cx - pw, cy + 6), Offset(cx + pw, cy + 6), plusPaint);
-    canvas.drawLine(Offset(cx, cy + 6 - ph), Offset(cx, cy + 6 + ph), plusPaint);
+    const ph = 8.0;
+    const pw = 8.0;
+    canvas
+      ..drawLine(Offset(cx - pw, cy + 6), Offset(cx + pw, cy + 6), plusPaint)
+      ..drawLine(Offset(cx, cy + 6 - ph), Offset(cx, cy + 6 + ph), plusPaint);
   }
 
   void _drawDashedRRect(Canvas canvas, RRect rRect, Paint paint) {
@@ -200,9 +202,9 @@ class _EmptyIllustrationPainter extends CustomPainter {
 
     final totalW =
         barHeights.length * barWidth + (barHeights.length - 1) * spacing;
-    double startX = cx - totalW / 2;
+    var startX = cx - totalW / 2;
 
-    for (int i = 0; i < barHeights.length; i++) {
+    for (var i = 0; i < barHeights.length; i++) {
       final barH = maxBarH * barHeights[i];
       final rect = RRect.fromRectAndRadius(
         Rect.fromLTWH(startX, baseY - barH, barWidth, barH),
@@ -260,8 +262,8 @@ class _EmptyIllustrationPainter extends CustomPainter {
     final startX = cx - totalW / 2;
     final startY = cy - totalH / 2;
 
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
         final left = startX + c * (cellSize + gap);
         final top = startY + r * (cellSize + gap);
         final rect = RRect.fromRectAndRadius(
@@ -269,21 +271,22 @@ class _EmptyIllustrationPainter extends CustomPainter {
           const Radius.circular(6),
         );
         final isCenter = r == 1 && c == 1;
-        canvas.drawRRect(
-          rect,
-          Paint()
-            ..color = isCenter
-                ? AppColors.primary.withValues(alpha: 0.2)
-                : AppColors.primary.withValues(alpha: 0.09)
-            ..style = PaintingStyle.fill,
-        );
-        canvas.drawRRect(
-          rect,
-          Paint()
-            ..color = AppColors.primary.withValues(alpha: 0.2)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1,
-        );
+        canvas
+          ..drawRRect(
+            rect,
+            Paint()
+              ..color = isCenter
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : AppColors.primary.withValues(alpha: 0.09)
+              ..style = PaintingStyle.fill,
+          )
+          ..drawRRect(
+            rect,
+            Paint()
+              ..color = AppColors.primary.withValues(alpha: 0.2)
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1,
+          );
       }
     }
   }

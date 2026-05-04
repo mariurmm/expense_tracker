@@ -1,6 +1,9 @@
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
+import 'package:injectable/injectable.dart';
+
 import '../models/transaction_model.dart';
 
+@lazySingleton
 class TransactionLocalDatasource {
   static const String boxName = 'transactions';
 

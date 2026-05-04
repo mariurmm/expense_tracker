@@ -4,14 +4,14 @@ import '../enums/period_filter.dart';
 /// Reusable SegmentedButton for Week / Month / Year filtering.
 /// Used in both ReportsScreen and TransactionsScreen.
 class PeriodSelector extends StatelessWidget {
-  final PeriodFilter current;
-  final ValueChanged<PeriodFilter> onChanged;
-
   const PeriodSelector({
-    super.key,
     required this.current,
     required this.onChanged,
+    super.key,
   });
+
+  final PeriodFilter current;
+  final ValueChanged<PeriodFilter> onChanged;
 
   @override
   Widget build(BuildContext context) {

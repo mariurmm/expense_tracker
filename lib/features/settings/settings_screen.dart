@@ -1,5 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -10,6 +12,7 @@ import '../../data/datasources/transaction_local_datasource.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/default_categories.dart';
 import '../../data/models/transaction_model.dart';
+import '../../di/injection.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/settings_provider.dart';
@@ -20,19 +23,19 @@ import '../../providers/transaction_provider.dart';
 // ---------------------------------------------------------------------------
 
 class _CurrencyOption {
+  const _CurrencyOption(
+      {required this.symbol, required this.locale, required this.label});
+
   final String symbol;
   final String locale;
   final String label;
-
-  const _CurrencyOption(
-      {required this.symbol, required this.locale, required this.label});
 }
 
 const _currencies = [
   _CurrencyOption(symbol: '₸', locale: 'ru_RU', label: '₸  Kazakhstani Tenge'),
   _CurrencyOption(symbol: '₽', locale: 'ru_RU', label: '₽  Russian Ruble'),
-  _CurrencyOption(symbol: '\$', locale: 'en_US', label: '\$  US Dollar'),
-  _CurrencyOption(symbol: '€', locale: 'eu', label: '€  Euro'),
+  _CurrencyOption(symbol: r'$', locale: 'en_US', label: r'$  US Dollar'),
+  _CurrencyOption(symbol: '€', locale: 'de_DE', label: '€  Euro'),
   _CurrencyOption(symbol: '£', locale: 'en_GB', label: '£  British Pound'),
 ];
 
@@ -61,7 +64,7 @@ class SettingsScreen extends StatelessWidget {
           // ---- Currency ----
           _SectionCard(children: [
             ListTile(
-              leading: _IconBox(
+              leading: const _IconBox(
                   icon: Icons.currency_exchange_outlined,
                   color: AppColors.primaryLight),
               title: const Text('Currency'),
@@ -79,7 +82,7 @@ class SettingsScreen extends StatelessWidget {
           // ---- Export ----
           _SectionCard(children: [
             ListTile(
-              leading: _IconBox(
+              leading: const _IconBox(
                   icon: Icons.download_rounded,
                   color: AppColors.primary),
               title: const Text('Экспорт в CSV'),
@@ -94,17 +97,22 @@ class SettingsScreen extends StatelessWidget {
           // ---- About ----
           _SectionCard(children: [
             ListTile(
-              leading: _IconBox(
+              leading: const _IconBox(
                   icon: Icons.info_outline, color: Colors.blueGrey),
               title: const Text('About'),
               subtitle: const Text('Version 1.0.0'),
               trailing: const Icon(Icons.chevron_right,
                   color: AppColors.textSecondary),
-              onTap: () {},
+              onTap: () => showAboutDialog(
+                context: context,
+                applicationName: 'Где Деньги?',
+                applicationVersion: '1.0.0',
+                applicationLegalese: '© 2025 MIT License',
+              ),
             ),
             const Divider(height: 1, indent: 56),
             ListTile(
-              leading: _IconBox(
+              leading: const _IconBox(
                   icon: Icons.delete_forever_outlined,
                   color: AppColors.expense),
               title: const Text(
@@ -135,15 +143,15 @@ class SettingsScreen extends StatelessWidget {
     }
 
     // Show loading indicator
-    showDialog(
+    unawaited(showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (_) =>
           const Center(child: CircularProgressIndicator()),
-    );
+    ));
 
     try {
-      final file = await ExportService()
+      final file = await getIt<ExportService>()
           .exportTransactionsToCSV(transactions.toList(), currency);
 
       if (!context.mounted) return;
@@ -167,7 +175,7 @@ class SettingsScreen extends StatelessWidget {
 
   void _showCurrencyPicker(
       BuildContext context, SettingsProvider settings) {
-    showModalBottomSheet(
+    unawaited(showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -202,7 +210,7 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   // ---- clear data ----
@@ -257,8 +265,9 @@ class SettingsScreen extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ProfileTile extends StatelessWidget {
-  final SettingsProvider settings;
   const _ProfileTile({required this.settings});
+
+  final SettingsProvider settings;
 
   String get _initial =>
       settings.userName.isNotEmpty ? settings.userName[0].toUpperCase() : '?';
@@ -289,7 +298,7 @@ class _ProfileTile extends StatelessWidget {
       ),
     );
     if (saved != null && saved.isNotEmpty && context.mounted) {
-      context.read<SettingsProvider>().setUserName(saved);
+      await context.read<SettingsProvider>().setUserName(saved);
     }
   }
 
@@ -328,8 +337,9 @@ class _ProfileTile extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _SectionCard extends StatelessWidget {
-  final List<Widget> children;
   const _SectionCard({required this.children});
+
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
@@ -348,9 +358,10 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _IconBox extends StatelessWidget {
+  const _IconBox({required this.icon, required this.color});
+
   final IconData icon;
   final Color color;
-  const _IconBox({required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {

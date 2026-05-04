@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,21 +20,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _fabExpanded = false;
+  Timer? _fabTimer;
+
+  @override
+  void dispose() {
+    _fabTimer?.cancel();
+    super.dispose();
+  }
 
   void _openSheet() {
-    // Collapse FAB before opening sheet
     setState(() => _fabExpanded = false);
     AddTransactionSheet.show(context);
   }
 
   void _toggleFab() {
     setState(() => _fabExpanded = !_fabExpanded);
-    // Auto-collapse after 3 seconds if user doesn't tap again
     if (_fabExpanded) {
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted && _fabExpanded) {
-          setState(() => _fabExpanded = false);
-        }
+      _fabTimer?.cancel();
+      _fabTimer = Timer(const Duration(seconds: 3), () {
+        if (mounted && _fabExpanded) setState(() => _fabExpanded = false);
       });
     }
   }

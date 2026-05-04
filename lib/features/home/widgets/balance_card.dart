@@ -8,18 +8,18 @@ import '../../../core/utils/formatters.dart';
 import '../../../providers/settings_provider.dart';
 
 class BalanceCard extends StatelessWidget {
-  final double balance;
-  final double income;
-  final double expense;
-  final DateTime month;
-
   const BalanceCard({
-    super.key,
     required this.balance,
     required this.income,
     required this.expense,
     required this.month,
+    super.key,
   });
+
+  final double balance;
+  final double income;
+  final double expense;
+  final DateTime month;
 
   @override
   Widget build(BuildContext context) {
@@ -110,12 +110,6 @@ class BalanceCard extends StatelessWidget {
 }
 
 class _SummaryItem extends StatelessWidget {
-  final String label;
-  final double amount;
-  final IconData icon;
-  final Color color;
-  final SettingsProvider settings;
-
   const _SummaryItem({
     required this.label,
     required this.amount,
@@ -123,6 +117,12 @@ class _SummaryItem extends StatelessWidget {
     required this.color,
     required this.settings,
   });
+
+  final String label;
+  final double amount;
+  final IconData icon;
+  final Color color;
+  final SettingsProvider settings;
 
   @override
   Widget build(BuildContext context) {

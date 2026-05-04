@@ -351,7 +351,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
               ],
               decoration: InputDecoration(
                 labelText: AppStrings.amount,

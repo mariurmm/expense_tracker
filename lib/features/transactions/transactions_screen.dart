@@ -68,8 +68,9 @@ class TransactionsScreen extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _FilterBar extends StatelessWidget {
-  final TransactionProvider provider;
   const _FilterBar({required this.provider});
+
+  final TransactionProvider provider;
 
   @override
   Widget build(BuildContext context) {
@@ -124,12 +125,12 @@ class _FilterBar extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _GroupedList extends StatelessWidget {
+  const _GroupedList(
+      {required this.transactions, required this.groupByDate});
+
   final List<Transaction> transactions;
   final Map<String, List<Transaction>> Function(List<Transaction>)
       groupByDate;
-
-  const _GroupedList(
-      {required this.transactions, required this.groupByDate});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +149,7 @@ class _GroupedList extends StatelessWidget {
             position: i,
             duration: const Duration(milliseconds: 375),
             child: SlideAnimation(
-              verticalOffset: 50.0,
+              verticalOffset: 50,
               child: FadeInAnimation(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,8 +183,9 @@ class _GroupedList extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _DismissibleTile extends StatelessWidget {
-  final Transaction transaction;
   const _DismissibleTile({required this.transaction});
+
+  final Transaction transaction;
 
   @override
   Widget build(BuildContext context) {

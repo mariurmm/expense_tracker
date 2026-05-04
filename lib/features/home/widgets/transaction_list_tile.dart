@@ -8,9 +8,9 @@ import '../../../providers/category_provider.dart';
 import '../../../providers/settings_provider.dart';
 
 class TransactionListTile extends StatelessWidget {
-  final Transaction transaction;
+  const TransactionListTile({required this.transaction, super.key});
 
-  const TransactionListTile({super.key, required this.transaction});
+  final Transaction transaction;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class TransactionListTile extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         subtitle: Text(
-          transaction.note?.isNotEmpty == true
+          (transaction.note?.isNotEmpty ?? false)
               ? transaction.note!
               : Formatters.formatDate(transaction.date),
           style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
@@ -71,7 +71,7 @@ class TransactionListTile extends StatelessWidget {
                 fontSize: 15,
               ),
             ),
-            if (transaction.note?.isNotEmpty == true) ...[
+            if (transaction.note?.isNotEmpty ?? false) ...[
               const SizedBox(height: 2),
               Text(
                 Formatters.formatDate(transaction.date),

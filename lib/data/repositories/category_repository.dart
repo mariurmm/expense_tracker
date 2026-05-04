@@ -1,11 +1,14 @@
+import 'package:injectable/injectable.dart';
+
 import '../datasources/category_local_datasource.dart';
 import '../models/category_model.dart';
 
+@lazySingleton
 class CategoryRepository {
-  final CategoryLocalDatasource _datasource;
-
-  CategoryRepository({required CategoryLocalDatasource datasource})
+  const CategoryRepository({required CategoryLocalDatasource datasource})
       : _datasource = datasource;
+
+  final CategoryLocalDatasource _datasource;
 
   Future<void> addCategory(Category category) => _datasource.put(category);
 

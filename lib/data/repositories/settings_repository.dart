@@ -1,10 +1,13 @@
+import 'package:injectable/injectable.dart';
+
 import '../datasources/settings_local_datasource.dart';
 
+@lazySingleton
 class SettingsRepository {
-  final SettingsLocalDatasource _datasource;
-
-  SettingsRepository({required SettingsLocalDatasource datasource})
+  const SettingsRepository({required SettingsLocalDatasource datasource})
       : _datasource = datasource;
+
+  final SettingsLocalDatasource _datasource;
 
   String get userName =>
       _datasource.get('userName', defaultValue: '');

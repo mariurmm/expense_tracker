@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme/app_theme.dart';
@@ -13,6 +13,7 @@ import 'data/models/transaction_model.dart';
 import 'data/repositories/category_repository.dart';
 import 'data/repositories/settings_repository.dart';
 import 'data/repositories/transaction_repository.dart';
+import 'di/injection.dart';
 import 'features/home/home_screen.dart';
 import 'features/reports/reports_screen.dart';
 import 'features/settings/settings_screen.dart';
@@ -23,22 +24,20 @@ import 'providers/settings_provider.dart';
 import 'providers/transaction_provider.dart';
 
 Future<void> main() async {
-  // Keep the native splash visible until we call FlutterNativeSplash.remove()
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   // ── Hive initialisation ──────────────────────────────────────────────────
   await Hive.initFlutter();
 
-  // Register adapters in typeId order
-  Hive.registerAdapter(TransactionTypeAdapter()); // typeId 1
-  Hive.registerAdapter(TransactionAdapter());     // typeId 0
-  Hive.registerAdapter(CategoryAdapter());        // typeId 2
+  Hive
+    ..registerAdapter(TransactionTypeAdapter()) // typeId 1
+    ..registerAdapter(TransactionAdapter())     // typeId 0
+    ..registerAdapter(CategoryAdapter());       // typeId 2
 
-  // Open boxes
   await Hive.openBox<Transaction>(TransactionLocalDatasource.boxName);
   await Hive.openBox<Category>(CategoryLocalDatasource.boxName);
-  await Hive.openBox(SettingsLocalDatasource.boxName); // dynamic box
+  await Hive.openBox<dynamic>(SettingsLocalDatasource.boxName);
 
   // Seed default categories on first launch
   if (Hive.box<Category>(CategoryLocalDatasource.boxName).isEmpty) {
@@ -48,42 +47,36 @@ Future<void> main() async {
     }
   }
 
-  // ── Repositories ─────────────────────────────────────────────────────────
-  final txRepo = TransactionRepository(
-      datasource: TransactionLocalDatasource());
-  final catRepo = CategoryRepository(
-      datasource: CategoryLocalDatasource());
-  final settingsRepo = SettingsRepository(
-      datasource: SettingsLocalDatasource());
+  // ── Dependency injection ──────────────────────────────────────────────────
+  await configureDependencies();
 
-  // Hive is ready — remove the native splash screen now
+  // ── Providers ────────────────────────────────────────────────────────────
+  final txRepo = getIt<TransactionRepository>();
+  final catRepo = getIt<CategoryRepository>();
+  final settingsRepo = getIt<SettingsRepository>();
+
   FlutterNativeSplash.remove();
 
-  // ── App ───────────────────────────────────────────────────────────────────
+  final txProvider = TransactionProvider(txRepo)..loadTransactions();
+  final reportsProvider = ReportsProvider(txRepo, catRepo)..load();
+  txProvider.reportsProvider = reportsProvider;
+
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: txProvider),
         ChangeNotifierProvider(
-          create: (_) =>
-              TransactionProvider(txRepo)..loadTransactions(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) =>
-              CategoryProvider(catRepo)..loadCategories(),
+          create: (_) => CategoryProvider(catRepo)..loadCategories(),
         ),
         ChangeNotifierProvider(
           create: (_) => SettingsProvider(settingsRepo)..load(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => ReportsProvider(txRepo, catRepo)..load(),
-        ),
+        ChangeNotifierProvider.value(value: reportsProvider),
       ],
       child: const App(),
     ),
   );
 }
-
-// ── Root widget ──────────────────────────────────────────────────────────────
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -98,8 +91,6 @@ class App extends StatelessWidget {
     );
   }
 }
-
-// ── Bottom-navigation shell ──────────────────────────────────────────────────
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});

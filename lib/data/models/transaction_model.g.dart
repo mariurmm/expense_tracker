@@ -8,7 +8,7 @@ part of 'transaction_model.dart';
 
 class TransactionAdapter extends TypeAdapter<Transaction> {
   @override
-  final int typeId = 0;
+  final typeId = 0;
 
   @override
   Transaction read(BinaryReader reader) {
@@ -18,7 +18,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
     };
     return Transaction(
       id: fields[0] as String,
-      amount: fields[1] as double,
+      amount: (fields[1] as num).toDouble(),
       type: fields[2] as TransactionType,
       category: fields[3] as String,
       date: fields[4] as DateTime,
@@ -57,7 +57,7 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
 
 class TransactionTypeAdapter extends TypeAdapter<TransactionType> {
   @override
-  final int typeId = 1;
+  final typeId = 1;
 
   @override
   TransactionType read(BinaryReader reader) {
@@ -91,3 +91,32 @@ class TransactionTypeAdapter extends TypeAdapter<TransactionType> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
+    _$TransactionImpl(
+      id: json['id'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      type: $enumDecode(_$TransactionTypeEnumMap, json['type']),
+      category: json['category'] as String,
+      date: DateTime.parse(json['date'] as String),
+      note: json['note'] as String?,
+    );
+
+Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'amount': instance.amount,
+      'type': _$TransactionTypeEnumMap[instance.type]!,
+      'category': instance.category,
+      'date': instance.date.toIso8601String(),
+      'note': instance.note,
+    };
+
+const _$TransactionTypeEnumMap = {
+  TransactionType.income: 'income',
+  TransactionType.expense: 'expense',
+};

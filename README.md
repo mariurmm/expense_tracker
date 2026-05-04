@@ -116,7 +116,7 @@ lib/
 
 ### Требования
 
-- Flutter SDK `>=3.0.0`
+- Flutter SDK `3.41.6` (через FVM)
 - Dart SDK `>=3.0.0`
 - Android Studio / VS Code с плагином Flutter
 
@@ -128,13 +128,21 @@ git clone https://github.com/mariurmm/expense_tracker.git
 cd expense_tracker
 
 # 2. Установить зависимости
-flutter pub get
+fvm flutter pub get
 
 # 3. Сгенерировать Hive-адаптеры (если отсутствуют .g.dart файлы)
-flutter packages pub run build_runner build --delete-conflicting-outputs
+fvm dart run build_runner build --delete-conflicting-outputs
 
 # 4. Запустить приложение
-flutter run
+fvm flutter run
+```
+
+### Запуск через FVM
+
+```bash
+fvm install
+fvm flutter pub get
+fvm flutter run
 ```
 
 ### Сборка релиза
@@ -153,19 +161,17 @@ flutter build appbundle --release
 
 | Символ | Валюта |
 |:---:|---|
+| ₸ | Казахстанский тенге (KZT) |
 | ₽ | Российский рубль (RUB) |
 | $ | Доллар США (USD) |
 | € | Евро (EUR) |
 | £ | Фунт стерлингов (GBP) |
-| ¥ | Японская иена (JPY) |
 
 ---
 
 ## 🗂️ Встроенные категории
 
-**Расходы:** Еда и напитки, Транспорт, Жильё, Здоровье, Развлечения, Одежда, Образование, Путешествия, Другое
-
-**Доходы:** Зарплата, Фриланс, Инвестиции, Подарки, Другое
+**По умолчанию создаётся 6 категорий:** Еда, Транспорт, Зарплата, Покупки, Здоровье, Другое.
 
 > Помимо встроенных категорий можно создавать собственные прямо в приложении.
 

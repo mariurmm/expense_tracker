@@ -3,7 +3,12 @@
     "allow": [
       "Bash(flutter pub *)",
       "Bash(flutter analyze *)",
-      "Bash(flutter test *)"
+      "Bash(flutter test *)",
+      "PowerShell(fvm --version 2>&1)",
+      "PowerShell(dart pub global activate fvm 2>&1)",
+      "PowerShell($env:PATH += \";$env:USERPROFILE\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\bin\"; Set-Location \"c:\\\\Users\\\\Asus\\\\projects\\\\expense_tracker\"; fvm use 3.41.6 --force 2>&1)",
+      "Bash(fvm flutter *)",
+      "Bash(flutter build *)"
     ]
   }
 }

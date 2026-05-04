@@ -31,18 +31,18 @@ class ReportsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            _SectionLabel(label: 'Expenses by Category'),
+            const _SectionLabel(label: 'Expenses by Category'),
             const SizedBox(height: 12),
-            reports.hasExpenses
-                ? _PieSection(reports: reports, settings: settings)
-                : EmptyStateWidget(
-                    illustration: EmptyIllustration.reports,
-                    title: 'Нет данных',
-                    subtitle:
-                        'За выбранный период транзакций не найдено',
-                  ),
+            if (reports.hasExpenses)
+              _PieSection(reports: reports, settings: settings)
+            else
+              const EmptyStateWidget(
+                illustration: EmptyIllustration.reports,
+                title: 'Нет данных',
+                subtitle: 'За выбранный период транзакций не найдено',
+              ),
             const SizedBox(height: 28),
-            _SectionLabel(label: 'Income vs Expenses'),
+            const _SectionLabel(label: 'Income vs Expenses'),
             const SizedBox(height: 12),
             _BarSection(reports: reports, settings: settings),
           ],
@@ -57,8 +57,9 @@ class ReportsScreen extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _SectionLabel extends StatelessWidget {
-  final String label;
   const _SectionLabel({required this.label});
+
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +78,10 @@ class _SectionLabel extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _PieSection extends StatelessWidget {
+  const _PieSection({required this.reports, required this.settings});
+
   final ReportsProvider reports;
   final SettingsProvider settings;
-
-  const _PieSection({required this.reports, required this.settings});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +106,7 @@ class _PieSection extends StatelessWidget {
                       .toList(),
                   centerSpaceRadius: 58,
                   sectionsSpace: 2,
-                  pieTouchData: PieTouchData(enabled: true),
+                  pieTouchData: PieTouchData(),
                 ),
                 // ── Built-in fl_chart swap animation ──────────────────────
                 swapAnimationDuration:
@@ -145,10 +146,10 @@ class _PieSection extends StatelessWidget {
 }
 
 class _PieLegend extends StatelessWidget {
+  const _PieLegend({required this.reports, required this.settings});
+
   final ReportsProvider reports;
   final SettingsProvider settings;
-
-  const _PieLegend({required this.reports, required this.settings});
 
   @override
   Widget build(BuildContext context) {
@@ -206,10 +207,10 @@ class _PieLegend extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _BarSection extends StatelessWidget {
+  const _BarSection({required this.reports, required this.settings});
+
   final ReportsProvider reports;
   final SettingsProvider settings;
-
-  const _BarSection({required this.reports, required this.settings});
 
   @override
   Widget build(BuildContext context) {
@@ -232,15 +233,12 @@ class _BarSection extends StatelessWidget {
                   alignment: BarChartAlignment.spaceAround,
                   groupsSpace: 12,
                   gridData: const FlGridData(
-                    show: true,
                     drawVerticalLine: false,
                   ),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(),
+                    rightTitles: const AxisTitles(),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -318,11 +316,11 @@ class _BarSection extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             // Legend row
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _LegendDot(color: AppColors.income, label: 'Income'),
-                const SizedBox(width: 20),
+                SizedBox(width: 20),
                 _LegendDot(color: AppColors.expense, label: 'Expense'),
               ],
             ),
@@ -334,9 +332,10 @@ class _BarSection extends StatelessWidget {
 }
 
 class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color, required this.label});
+
   final Color color;
   final String label;
-  const _LegendDot({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
