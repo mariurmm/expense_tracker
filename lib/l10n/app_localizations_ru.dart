@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Учёт финансов';
+  String get appTitle => 'Где деньги?';
 
   @override
   String get navHome => 'Главная';
@@ -173,6 +173,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguageEn => 'English';
 
   @override
+  String get settingsTheme => 'Оформление';
+
+  @override
+  String get settingsThemeLight => 'Светлая';
+
+  @override
+  String get settingsThemeSystem => 'Системная';
+
+  @override
+  String get settingsThemeDark => 'Тёмная';
+
+  @override
   String get settingsExport => 'Экспорт в CSV';
 
   @override
@@ -188,7 +200,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsExportShareSubject => 'Мои финансы — экспорт';
 
   @override
-  String get settingsExportShareText => 'Экспорт транзакций из Finance Tracker';
+  String get settingsExportShareText => 'Экспорт транзакций из «Где деньги?»';
 
   @override
   String get settingsClearData => 'Очистить все данные';

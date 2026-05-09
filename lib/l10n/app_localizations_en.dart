@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Finance Tracker';
+  String get appTitle => 'Where\'s the money?';
 
   @override
   String get navHome => 'Home';
@@ -173,6 +173,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguageEn => 'English';
 
   @override
+  String get settingsTheme => 'Appearance';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
   String get settingsExport => 'Export to CSV';
 
   @override
@@ -188,7 +200,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsExportShareSubject => 'My finances — export';
 
   @override
-  String get settingsExportShareText => 'Finance Tracker transaction export';
+  String get settingsExportShareText =>
+      'Where\'s the money? transaction export';
 
   @override
   String get settingsClearData => 'Clear all data';

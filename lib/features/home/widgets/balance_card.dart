@@ -34,11 +34,11 @@ class BalanceCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.35),
-            blurRadius: 16,
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
@@ -49,19 +49,18 @@ class BalanceCard extends StatelessWidget {
           children: [
             Text(
               Formatters.formatMonth(month),
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              style: const TextStyle(color: Colors.white60, fontSize: 13),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
               l10n.homeBalance,
-              style: const TextStyle(color: Colors.white70, fontSize: 16),
+              style: const TextStyle(color: Colors.white70, fontSize: 15),
             ),
-            const SizedBox(height: 8),
-            // ── Animated balance counter ──────────────────────────────────
+            const SizedBox(height: 10),
             TweenAnimationBuilder<double>(
               key: ValueKey(balance),
               tween: Tween<double>(begin: 0, end: balance),
-              duration: const Duration(milliseconds: 800),
+              duration: const Duration(milliseconds: 900),
               curve: Curves.easeOutCubic,
               builder: (context, value, _) {
                 final formatted = NumberFormat.currency(
@@ -72,7 +71,7 @@ class BalanceCard extends StatelessWidget {
                   formatted,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 38,
+                    fontSize: 36,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                   ),
@@ -83,7 +82,7 @@ class BalanceCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _SummaryItem(
+                  child: _SummaryChip(
                     label: l10n.homeIncome,
                     amount: income,
                     icon: Icons.arrow_downward_rounded,
@@ -93,7 +92,7 @@ class BalanceCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _SummaryItem(
+                  child: _SummaryChip(
                     label: l10n.homeExpense,
                     amount: expense,
                     icon: Icons.arrow_upward_rounded,
@@ -110,8 +109,8 @@ class BalanceCard extends StatelessWidget {
   }
 }
 
-class _SummaryItem extends StatelessWidget {
-  const _SummaryItem({
+class _SummaryChip extends StatelessWidget {
+  const _SummaryChip({
     required this.label,
     required this.amount,
     required this.icon,
@@ -131,7 +130,7 @@ class _SummaryItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
@@ -141,16 +140,17 @@ class _SummaryItem extends StatelessWidget {
               color: color.withValues(alpha: 0.25),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: color, size: 16),
+            child: Icon(icon, color: color, size: 14),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: const TextStyle(
-                        color: Colors.white70, fontSize: 12)),
+                Text(
+                  label,
+                  style: const TextStyle(color: Colors.white60, fontSize: 11),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   Formatters.formatCurrencyWith(

@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Finance Tracker",
+  "appTitle": "Where's the money?",
   "@appTitle": { "description": "Application title" },
 
   "navHome": "Home",
@@ -115,6 +115,14 @@
   "@settingsLanguageRu": {},
   "settingsLanguageEn": "English",
   "@settingsLanguageEn": {},
+  "settingsTheme": "Appearance",
+  "@settingsTheme": {},
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": {},
+  "settingsThemeSystem": "System",
+  "@settingsThemeSystem": {},
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": {},
   "settingsExport": "Export to CSV",
   "@settingsExport": {},
   "settingsExportSubtitle": "Download all transactions",
@@ -125,7 +133,7 @@
   "@settingsExportError": {},
   "settingsExportShareSubject": "My finances — export",
   "@settingsExportShareSubject": {},
-  "settingsExportShareText": "Finance Tracker transaction export",
+  "settingsExportShareText": "Where's the money? transaction export",
   "@settingsExportShareText": {},
   "settingsClearData": "Clear all data",
   "@settingsClearData": {},

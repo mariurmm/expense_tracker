@@ -1,119 +1,157 @@
-import 'dart:async';
-
 import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/empty_state_widget.dart';
+import '../../core/widgets/transaction_card.dart';
+import '../../providers/settings_provider.dart';
 import '../../providers/transaction_provider.dart';
 import '../transactions/add_transaction_sheet.dart';
 import 'widgets/balance_card.dart';
-import 'widgets/transaction_list_tile.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool _fabExpanded = false;
-  Timer? _fabTimer;
-
-  @override
-  void dispose() {
-    _fabTimer?.cancel();
-    super.dispose();
-  }
-
-  void _openSheet() {
-    setState(() => _fabExpanded = false);
-    AddTransactionSheet.show(context);
-  }
-
-  void _toggleFab() {
-    setState(() => _fabExpanded = !_fabExpanded);
-    if (_fabExpanded) {
-      _fabTimer?.cancel();
-      _fabTimer = Timer(const Duration(seconds: 3), () {
-        if (mounted && _fabExpanded) setState(() => _fabExpanded = false);
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final settings = context.watch<SettingsProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-      ),
       body: Consumer<TransactionProvider>(
         builder: (context, provider, _) {
           return RefreshIndicator(
             onRefresh: () async => provider.loadTransactions(),
-            child: SingleChildScrollView(
+            child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BalanceCard(
-                    balance: provider.totalBalance,
-                    income: provider.totalIncome,
-                    expense: provider.totalExpense,
-                    month: provider.selectedMonth,
-                  ),
-                  const SizedBox(height: 28),
-                  Text(
-                    l10n.homeRecentTransactions,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppColors.surfaceDark
+                          : AppColors.cardBackground,
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(28),
+                      ),
+                    ),
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      MediaQuery.of(context).padding.top + 16,
+                      20,
+                      28,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.appTitle,
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark
+                                          ? AppColors.textPrimaryDark
+                                          : AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  if (settings.userName.isNotEmpty)
+                                    Text(
+                                      settings.userName,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: isDark
+                                            ? AppColors.textSecondaryDark
+                                            : AppColors.textSecondary,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor:
+                                  AppColors.primary.withValues(alpha: 0.12),
+                              child: Text(
+                                settings.userName.isNotEmpty
+                                    ? settings.userName[0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 20),
+                        BalanceCard(
+                          balance: provider.totalBalance,
+                          income: provider.totalIncome,
+                          expense: provider.totalExpense,
+                          month: provider.selectedMonth,
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                  if (provider.recentTransactions.isEmpty)
-                    EmptyStateWidget(
-                      illustration: EmptyIllustration.transactions,
-                      title: l10n.emptyTransactionsTitle,
-                      subtitle: l10n.emptyTransactionsSubtitle,
-                      buttonLabel: l10n.homeAddTransaction,
-                      onButtonPressed: () => AddTransactionSheet.show(context),
-                    )
-                  else
-                    ...provider.recentTransactions
-                        .map((t) => TransactionListTile(transaction: t)),
-                ],
-              ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              l10n.homeRecentTransactions,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: isDark
+                                    ? AppColors.textPrimaryDark
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        if (provider.recentTransactions.isEmpty)
+                          EmptyStateWidget(
+                            illustration: EmptyIllustration.transactions,
+                            title: l10n.emptyTransactionsTitle,
+                            subtitle: l10n.emptyTransactionsSubtitle,
+                            buttonLabel: l10n.homeAddTransaction,
+                            onButtonPressed: () =>
+                                AddTransactionSheet.show(context),
+                          )
+                        else
+                          ...provider.recentTransactions
+                              .map((t) => TransactionCard(transaction: t)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },
       ),
-      floatingActionButton: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (child, animation) => ScaleTransition(
-          scale: animation,
-          child: child,
-        ),
-        child: _fabExpanded
-            ? FloatingActionButton.extended(
-                key: const ValueKey('extended'),
-                onPressed: _openSheet,
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                icon: const Icon(Icons.add),
-                label: Text(l10n.homeAddTransaction),
-              )
-            : FloatingActionButton(
-                key: const ValueKey('collapsed'),
-                onPressed: _toggleFab,
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                child: const Icon(Icons.add),
-              ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => AddTransactionSheet.show(context),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        child: const Icon(Icons.add),
       ),
     );
   }

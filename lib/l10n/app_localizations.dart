@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application title
   ///
   /// In en, this message translates to:
-  /// **'Finance Tracker'**
+  /// **'Where\'s the money?'**
   String get appTitle;
 
   /// No description provided for @navHome.
@@ -422,6 +422,30 @@ abstract class AppLocalizations {
   /// **'English'**
   String get settingsLanguageEn;
 
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsTheme;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
   /// No description provided for @settingsExport.
   ///
   /// In en, this message translates to:
@@ -455,7 +479,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsExportShareText.
   ///
   /// In en, this message translates to:
-  /// **'Finance Tracker transaction export'**
+  /// **'Where\'s the money? transaction export'**
   String get settingsExportShareText;
 
   /// No description provided for @settingsClearData.

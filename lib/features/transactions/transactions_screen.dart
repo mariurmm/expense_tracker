@@ -8,9 +8,9 @@ import '../../core/enums/period_filter.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/period_selector.dart';
+import '../../core/widgets/transaction_card.dart';
 import '../../data/models/transaction_model.dart';
 import '../../providers/transaction_provider.dart';
-import '../home/widgets/transaction_list_tile.dart';
 import 'add_transaction_sheet.dart';
 
 class TransactionsScreen extends StatelessWidget {
@@ -28,13 +28,14 @@ class TransactionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navTransactions)),
       body: Consumer<TransactionProvider>(
         builder: (context, provider, _) {
           return Column(
             children: [
-              _FilterBar(provider: provider),
+              _Header(provider: provider, isDark: isDark),
               Expanded(
                 child: provider.filteredTransactions.isEmpty
                     ? EmptyStateWidget(
@@ -64,66 +65,97 @@ class TransactionsScreen extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Filter bar — PeriodSelector + month navigation (shown for month mode only)
-// ---------------------------------------------------------------------------
-
-class _FilterBar extends StatelessWidget {
-  const _FilterBar({required this.provider});
+class _Header extends StatelessWidget {
+  const _Header({required this.provider, required this.isDark});
 
   final TransactionProvider provider;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: AppColors.primary,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: Column(
-            children: [
-              PeriodSelector(
-                current: provider.periodFilter,
-                onChanged: provider.setPeriodFilter,
-              ),
-              if (provider.periodFilter == PeriodFilter.month) ...[
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      onPressed: provider.previousMonth,
-                      icon: const Icon(Icons.chevron_left,
-                          color: Colors.white, size: 28),
-                    ),
-                    Text(
-                      Formatters.formatMonth(provider.selectedMonth),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: provider.nextMonth,
-                      icon: const Icon(Icons.chevron_right,
-                          color: Colors.white, size: 28),
-                    ),
-                  ],
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : AppColors.cardBackground,
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(24),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        MediaQuery.of(context).padding.top + 16,
+        20,
+        16,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.navTransactions,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          PeriodSelector(
+            current: provider.periodFilter,
+            onChanged: provider.setPeriodFilter,
+          ),
+          if (provider.periodFilter == PeriodFilter.month) ...[
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: provider.previousMonth,
+                  icon: Icon(
+                    Icons.chevron_left,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
+                    size: 28,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: isDark
+                        ? AppColors.cardBackgroundDark
+                        : AppColors.background,
+                  ),
+                ),
+                Text(
+                  Formatters.formatMonth(provider.selectedMonth),
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
+                  ),
+                ),
+                IconButton(
+                  onPressed: provider.nextMonth,
+                  icon: Icon(
+                    Icons.chevron_right,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
+                    size: 28,
+                  ),
+                  style: IconButton.styleFrom(
+                    backgroundColor: isDark
+                        ? AppColors.cardBackgroundDark
+                        : AppColors.background,
+                  ),
                 ),
               ],
-            ],
-          ),
-        ),
+            ),
+          ],
+        ],
       ),
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Grouped list with staggered entry animations
-// ---------------------------------------------------------------------------
 
 class _GroupedList extends StatelessWidget {
   const _GroupedList(
@@ -137,10 +169,11 @@ class _GroupedList extends StatelessWidget {
   Widget build(BuildContext context) {
     final grouped = groupByDate(transactions);
     final dates = grouped.keys.toList();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AnimationLimiter(
       child: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
         itemCount: dates.length,
         itemBuilder: (context, i) {
           final date = dates[i];
@@ -161,9 +194,11 @@ class _GroupedList extends StatelessWidget {
                         date,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: Colors.grey.shade600,
-                          letterSpacing: 0.3,
+                          fontSize: 12,
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondary,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ),
@@ -178,10 +213,6 @@ class _GroupedList extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Swipe-to-delete tile
-// ---------------------------------------------------------------------------
 
 class _DismissibleTile extends StatelessWidget {
   const _DismissibleTile({required this.transaction});
@@ -199,10 +230,11 @@ class _DismissibleTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: AppColors.expense,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         alignment: Alignment.centerRight,
-        child: const Icon(Icons.delete_outline, color: Colors.white, size: 26),
+        child:
+            const Icon(Icons.delete_outline, color: Colors.white, size: 26),
       ),
       confirmDismiss: (_) => showDialog<bool>(
         context: context,
@@ -215,7 +247,8 @@ class _DismissibleTile extends StatelessWidget {
               child: Text(l10n.buttonCancel),
             ),
             TextButton(
-              style: TextButton.styleFrom(foregroundColor: AppColors.expense),
+              style:
+                  TextButton.styleFrom(foregroundColor: AppColors.expense),
               onPressed: () => Navigator.pop(ctx, true),
               child: Text(l10n.buttonDelete),
             ),
@@ -236,7 +269,7 @@ class _DismissibleTile extends StatelessWidget {
           SnackBar(content: Text(l10n.transactionDeleteConfirm)),
         );
       },
-      child: TransactionListTile(transaction: transaction),
+      child: TransactionCard(transaction: transaction),
     );
   }
 }

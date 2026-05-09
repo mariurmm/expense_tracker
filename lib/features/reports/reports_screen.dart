@@ -18,59 +18,253 @@ class ReportsScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final reports = context.watch<ReportsProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navReports)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: PeriodSelector(
-                current: reports.periodFilter,
-                onChanged: reports.setPeriodFilter,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark
+                    ? AppColors.surfaceDark
+                    : AppColors.cardBackground,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(24),
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                MediaQuery.of(context).padding.top + 16,
+                20,
+                20,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.navReports,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Center(
+                    child: PeriodSelector(
+                      current: reports.periodFilter,
+                      onChanged: reports.setPeriodFilter,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            _SectionLabel(label: l10n.reportsExpensesByCategory),
-            const SizedBox(height: 12),
-            if (reports.hasExpenses)
-              _PieSection(reports: reports, settings: settings)
-            else
-              EmptyStateWidget(
-                illustration: EmptyIllustration.reports,
-                title: l10n.reportsNoData,
-                subtitle: l10n.reportsNoDataSubtitle,
-              ),
-            const SizedBox(height: 28),
-            _SectionLabel(label: l10n.reportsIncomeVsExpense),
-            const SizedBox(height: 12),
-            _BarSection(reports: reports, settings: settings),
-          ],
-        ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // Summary row
+                if (reports.hasExpenses || reports.totalIncome > 0)
+                  _SummaryRow(
+                      reports: reports,
+                      settings: settings,
+                      isDark: isDark),
+                if (reports.hasExpenses || reports.totalIncome > 0)
+                  const SizedBox(height: 20),
+
+                // Pie chart section
+                _ChartCard(
+                  title: l10n.reportsExpensesByCategory,
+                  isDark: isDark,
+                  child: reports.hasExpenses
+                      ? _PieSection(reports: reports, settings: settings)
+                      : EmptyStateWidget(
+                          illustration: EmptyIllustration.reports,
+                          title: l10n.reportsNoData,
+                          subtitle: l10n.reportsNoDataSubtitle,
+                        ),
+                ),
+                const SizedBox(height: 16),
+
+                // Bar chart section
+                _ChartCard(
+                  title: l10n.reportsIncomeVsExpense,
+                  isDark: isDark,
+                  child: _BarSection(reports: reports, settings: settings),
+                ),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Shared section label
+// Summary row — 3 cards: income, expense, balance
 // ---------------------------------------------------------------------------
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.label});
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow(
+      {required this.reports, required this.settings, required this.isDark});
 
-  final String label;
+  final ReportsProvider reports;
+  final SettingsProvider settings;
+  final bool isDark;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      label,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+    final l10n = AppLocalizations.of(context);
+    final cardColor = isDark ? AppColors.cardBackgroundDark : AppColors.cardBackground;
+    final balance = reports.totalIncome - reports.totalExpense;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _SummaryCard(
+            label: l10n.homeIncome,
+            amount: reports.totalIncome,
+            color: AppColors.income,
+            icon: Icons.arrow_downward_rounded,
+            cardColor: cardColor,
+            settings: settings,
+            isDark: isDark,
           ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _SummaryCard(
+            label: l10n.homeExpense,
+            amount: reports.totalExpense,
+            color: AppColors.expense,
+            icon: Icons.arrow_upward_rounded,
+            cardColor: cardColor,
+            settings: settings,
+            isDark: isDark,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _SummaryCard(
+            label: l10n.homeBalance,
+            amount: balance,
+            color: AppColors.primary,
+            icon: Icons.account_balance_wallet_outlined,
+            cardColor: cardColor,
+            settings: settings,
+            isDark: isDark,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.label,
+    required this.amount,
+    required this.color,
+    required this.icon,
+    required this.cardColor,
+    required this.settings,
+    required this.isDark,
+  });
+
+  final String label;
+  final double amount;
+  final Color color;
+  final IconData icon;
+  final Color cardColor;
+  final SettingsProvider settings;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 14),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            Formatters.formatCompact(amount),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Chart card wrapper
+// ---------------------------------------------------------------------------
+
+class _ChartCard extends StatelessWidget {
+  const _ChartCard(
+      {required this.title, required this.child, required this.isDark});
+
+  final String title;
+  final Widget child;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color:
+            isDark ? AppColors.cardBackgroundDark : AppColors.cardBackground,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
     );
   }
 }
@@ -103,12 +297,12 @@ class _PieSection extends StatelessWidget {
                           value: s.amount,
                           color: s.color,
                           title: '',
-                          radius: 72,
+                          radius: 68,
                         ),
                       )
                       .toList(),
-                  centerSpaceRadius: 58,
-                  sectionsSpace: 2,
+                  centerSpaceRadius: 56,
+                  sectionsSpace: 3,
                   pieTouchData: PieTouchData(),
                 ),
                 swapAnimationDuration: const Duration(milliseconds: 600),
@@ -132,7 +326,7 @@ class _PieSection extends StatelessWidget {
                   ),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
               ],
@@ -157,23 +351,23 @@ class _PieLegend extends StatelessWidget {
     return Column(
       children: reports.pieSlices.map((s) {
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(
             children: [
               Container(
-                width: 12,
-                height: 12,
+                width: 10,
+                height: 10,
                 decoration: BoxDecoration(
                   color: s.color,
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   s.categoryName,
                   style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w500),
+                      fontSize: 13, fontWeight: FontWeight.w500),
                 ),
               ),
               Text(
@@ -183,7 +377,7 @@ class _PieLegend extends StatelessWidget {
                   symbol: settings.currencySymbol,
                 ),
                 style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600),
+                    fontSize: 13, fontWeight: FontWeight.w600),
               ),
               const SizedBox(width: 8),
               SizedBox(
@@ -192,7 +386,7 @@ class _PieLegend extends StatelessWidget {
                   '${s.percentage.toStringAsFixed(1)}%',
                   textAlign: TextAlign.end,
                   style: TextStyle(
-                      fontSize: 12, color: Colors.grey.shade500),
+                      fontSize: 11, color: Colors.grey.shade500),
                 ),
               ),
             ],
@@ -220,111 +414,106 @@ class _BarSection extends StatelessWidget {
     final maxY = reports.maxY;
     final interval = maxY > 0 ? (maxY / 4).roundToDouble() : 250.0;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 20, 16, 12),
-        child: Column(
-          children: [
-            AspectRatio(
-              aspectRatio: 1.5,
-              child: BarChart(
-                BarChartData(
-                  barGroups: reports.barGroups,
-                  maxY: maxY,
-                  alignment: BarChartAlignment.spaceAround,
-                  groupsSpace: 12,
-                  gridData: const FlGridData(drawVerticalLine: false),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(),
-                    rightTitles: const AxisTitles(),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 48,
-                        interval: interval,
-                        getTitlesWidget: (value, meta) {
-                          if (value == 0 || value == meta.max) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Text(
-                              Formatters.formatCompact(value),
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey.shade500,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 24,
-                        getTitlesWidget: (value, meta) {
-                          final i = value.toInt();
-                          if (i < 0 || i >= labels.length) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Text(
-                              labels[i],
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => Colors.blueGrey.shade800,
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        final label = rodIndex == 0
-                            ? l10n.transactionIncome
-                            : l10n.transactionExpense;
-                        final amount = Formatters.formatCurrencyWith(
-                          rod.toY,
-                          locale: settings.currencyLocale,
-                          symbol: settings.currencySymbol,
-                        );
-                        return BarTooltipItem(
-                          '$label\n$amount',
-                          const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 1.5,
+          child: BarChart(
+            BarChartData(
+              barGroups: reports.barGroups,
+              maxY: maxY,
+              alignment: BarChartAlignment.spaceAround,
+              groupsSpace: 12,
+              gridData: const FlGridData(drawVerticalLine: false),
+              borderData: FlBorderData(show: false),
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 48,
+                    interval: interval,
+                    getTitlesWidget: (value, meta) {
+                      if (value == 0 || value == meta.max) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text(
+                          Formatters.formatCompact(value),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade500,
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                swapAnimationDuration: const Duration(milliseconds: 500),
-                swapAnimationCurve: Curves.easeOut,
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 24,
+                    getTitlesWidget: (value, meta) {
+                      final i = value.toInt();
+                      if (i < 0 || i >= labels.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          labels[i],
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              barTouchData: BarTouchData(
+                touchTooltipData: BarTouchTooltipData(
+                  getTooltipColor: (_) => Colors.blueGrey.shade800,
+                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                    final label = rodIndex == 0
+                        ? l10n.transactionIncome
+                        : l10n.transactionExpense;
+                    final amount = Formatters.formatCurrencyWith(
+                      rod.toY,
+                      locale: settings.currencyLocale,
+                      symbol: settings.currencySymbol,
+                    );
+                    return BarTooltipItem(
+                      '$label\n$amount',
+                      const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _LegendDot(
-                    color: AppColors.income, label: l10n.transactionIncome),
-                const SizedBox(width: 20),
-                _LegendDot(
-                    color: AppColors.expense, label: l10n.transactionExpense),
-              ],
-            ),
+            swapAnimationDuration: const Duration(milliseconds: 500),
+            swapAnimationCurve: Curves.easeOut,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _LegendDot(
+                color: AppColors.income, label: l10n.transactionIncome),
+            const SizedBox(width: 20),
+            _LegendDot(
+                color: AppColors.expense, label: l10n.transactionExpense),
           ],
         ),
-      ),
+      ],
     );
   }
 }

@@ -45,6 +45,7 @@ class ReportsProvider extends ChangeNotifier {
   List<BarChartGroupData> _barGroups = [];
   List<String> _barLabels = [];
   double _totalExpense = 0;
+  double _totalIncome = 0;
   double _maxBarValue = 0;
 
   // ---- public getters ----
@@ -54,6 +55,7 @@ class ReportsProvider extends ChangeNotifier {
   List<BarChartGroupData> get barGroups => List.unmodifiable(_barGroups);
   List<String> get barLabels => List.unmodifiable(_barLabels);
   double get totalExpense => _totalExpense;
+  double get totalIncome => _totalIncome;
   bool get hasExpenses => _pieSlices.isNotEmpty;
 
   /// Upper bound for the bar chart Y axis (with 25 % head-room).
@@ -81,6 +83,9 @@ class ReportsProvider extends ChangeNotifier {
     final filtered = _filterTransactions();
     _totalExpense = filtered
         .where((t) => t.type == TransactionType.expense)
+        .fold<double>(0, (s, t) => s + t.amount);
+    _totalIncome = filtered
+        .where((t) => t.type == TransactionType.income)
         .fold<double>(0, (s, t) => s + t.amount);
     _pieSlices = _buildPieSlices(filtered);
     _barLabels = _buildBarLabels();

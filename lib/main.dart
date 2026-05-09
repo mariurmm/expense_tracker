@@ -4,6 +4,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:provider/provider.dart';
 
+import 'core/constants/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'data/datasources/category_local_datasource.dart';
 import 'data/datasources/settings_local_datasource.dart';
@@ -28,19 +29,17 @@ Future<void> main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  // ── Hive initialisation ──────────────────────────────────────────────────
   await Hive.initFlutter();
 
   Hive
-    ..registerAdapter(TransactionTypeAdapter()) // typeId 1
-    ..registerAdapter(TransactionAdapter())     // typeId 0
-    ..registerAdapter(CategoryAdapter());       // typeId 2
+    ..registerAdapter(TransactionTypeAdapter())
+    ..registerAdapter(TransactionAdapter())
+    ..registerAdapter(CategoryAdapter());
 
   await Hive.openBox<Transaction>(TransactionLocalDatasource.boxName);
   await Hive.openBox<Category>(CategoryLocalDatasource.boxName);
   await Hive.openBox<dynamic>(SettingsLocalDatasource.boxName);
 
-  // Seed default categories on first launch
   if (Hive.box<Category>(CategoryLocalDatasource.boxName).isEmpty) {
     final catDs = CategoryLocalDatasource();
     for (final cat in buildDefaultCategories()) {
@@ -48,10 +47,8 @@ Future<void> main() async {
     }
   }
 
-  // ── Dependency injection ──────────────────────────────────────────────────
   await configureDependencies();
 
-  // ── Providers ────────────────────────────────────────────────────────────
   final txRepo = getIt<TransactionRepository>();
   final catRepo = getIt<CategoryRepository>();
   final settingsRepo = getIt<SettingsRepository>();
@@ -87,12 +84,13 @@ class App extends StatelessWidget {
     return Consumer<SettingsProvider>(
       builder: (context, settings, _) {
         return MaterialApp(
-          title: 'Finance Tracker',
           debugShowCheckedModeBanner: false,
           locale: settings.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: settings.themeMode,
           home: const AppShell(),
         );
       },
@@ -120,33 +118,58 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: l10n.navHome,
+      extendBody: true,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.list_alt_outlined),
-            selectedIcon: const Icon(Icons.list_alt),
-            label: l10n.navTransactions,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: (i) => setState(() => _index = i),
+              height: 64,
+              backgroundColor: isDark
+                  ? AppColors.cardBackgroundDark
+                  : AppColors.cardBackground,
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(Icons.home_outlined),
+                  selectedIcon: const Icon(Icons.home),
+                  label: l10n.navHome,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.list_alt_outlined),
+                  selectedIcon: const Icon(Icons.list_alt),
+                  label: l10n.navTransactions,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.bar_chart_outlined),
+                  selectedIcon: const Icon(Icons.bar_chart),
+                  label: l10n.navReports,
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.settings_outlined),
+                  selectedIcon: const Icon(Icons.settings),
+                  label: l10n.navSettings,
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.bar_chart_outlined),
-            selectedIcon: const Icon(Icons.bar_chart),
-            label: l10n.navReports,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            selectedIcon: const Icon(Icons.settings),
-            label: l10n.navSettings,
-          ),
-        ],
+        ),
       ),
     );
   }
