@@ -1,4 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import '../data/repositories/settings_repository.dart';
 
 class SettingsProvider extends ChangeNotifier {
@@ -9,15 +11,18 @@ class SettingsProvider extends ChangeNotifier {
   String _userName = '';
   String _currencySymbol = '₸';
   String _currencyLocale = 'ru_RU';
+  Locale _locale = const Locale('ru');
 
   String get userName => _userName;
   String get currencySymbol => _currencySymbol;
   String get currencyLocale => _currencyLocale;
+  Locale get locale => _locale;
 
   void load() {
     _userName = _repository.userName;
     _currencySymbol = _repository.currencySymbol;
     _currencyLocale = _repository.currencyLocale;
+    _locale = Locale(_repository.locale);
     notifyListeners();
   }
 
@@ -35,6 +40,12 @@ class SettingsProvider extends ChangeNotifier {
     await _repository.setCurrencyLocale(locale);
     _currencySymbol = symbol;
     _currencyLocale = locale;
+    notifyListeners();
+  }
+
+  Future<void> setLocale(Locale locale) async {
+    await _repository.setLocale(locale.languageCode);
+    _locale = locale;
     notifyListeners();
   }
 }

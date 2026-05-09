@@ -1,3 +1,4 @@
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,11 +15,12 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final reports = context.watch<ReportsProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reports')),
+      appBar: AppBar(title: Text(l10n.navReports)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -31,18 +33,18 @@ class ReportsScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const _SectionLabel(label: 'Expenses by Category'),
+            _SectionLabel(label: l10n.reportsExpensesByCategory),
             const SizedBox(height: 12),
             if (reports.hasExpenses)
               _PieSection(reports: reports, settings: settings)
             else
-              const EmptyStateWidget(
+              EmptyStateWidget(
                 illustration: EmptyIllustration.reports,
-                title: 'Нет данных',
-                subtitle: 'За выбранный период транзакций не найдено',
+                title: l10n.reportsNoData,
+                subtitle: l10n.reportsNoDataSubtitle,
               ),
             const SizedBox(height: 28),
-            const _SectionLabel(label: 'Income vs Expenses'),
+            _SectionLabel(label: l10n.reportsIncomeVsExpense),
             const SizedBox(height: 12),
             _BarSection(reports: reports, settings: settings),
           ],
@@ -85,6 +87,7 @@ class _PieSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Stack(
@@ -108,9 +111,7 @@ class _PieSection extends StatelessWidget {
                   sectionsSpace: 2,
                   pieTouchData: PieTouchData(),
                 ),
-                // ── Built-in fl_chart swap animation ──────────────────────
-                swapAnimationDuration:
-                    const Duration(milliseconds: 600),
+                swapAnimationDuration: const Duration(milliseconds: 600),
                 swapAnimationCurve: Curves.easeInOutCubic,
               ),
             ),
@@ -118,7 +119,7 @@ class _PieSection extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Total',
+                  l10n.reportsTotal,
                   style: TextStyle(
                       fontSize: 12, color: Colors.grey.shade500),
                 ),
@@ -214,10 +215,10 @@ class _BarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final labels = reports.barLabels;
     final maxY = reports.maxY;
-    final interval =
-        maxY > 0 ? (maxY / 4).roundToDouble() : 250.0;
+    final interval = maxY > 0 ? (maxY / 4).roundToDouble() : 250.0;
 
     return Card(
       child: Padding(
@@ -232,9 +233,7 @@ class _BarSection extends StatelessWidget {
                   maxY: maxY,
                   alignment: BarChartAlignment.spaceAround,
                   groupsSpace: 12,
-                  gridData: const FlGridData(
-                    drawVerticalLine: false,
-                  ),
+                  gridData: const FlGridData(drawVerticalLine: false),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     topTitles: const AxisTitles(),
@@ -286,11 +285,11 @@ class _BarSection extends StatelessWidget {
                   ),
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) =>
-                          Colors.blueGrey.shade800,
+                      getTooltipColor: (_) => Colors.blueGrey.shade800,
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        final label =
-                            rodIndex == 0 ? 'Income' : 'Expense';
+                        final label = rodIndex == 0
+                            ? l10n.transactionIncome
+                            : l10n.transactionExpense;
                         final amount = Formatters.formatCurrencyWith(
                           rod.toY,
                           locale: settings.currencyLocale,
@@ -308,20 +307,19 @@ class _BarSection extends StatelessWidget {
                     ),
                   ),
                 ),
-                // ── Built-in fl_chart swap animation ──────────────────────
-                swapAnimationDuration:
-                    const Duration(milliseconds: 500),
+                swapAnimationDuration: const Duration(milliseconds: 500),
                 swapAnimationCurve: Curves.easeOut,
               ),
             ),
             const SizedBox(height: 8),
-            // Legend row
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _LegendDot(color: AppColors.income, label: 'Income'),
-                SizedBox(width: 20),
-                _LegendDot(color: AppColors.expense, label: 'Expense'),
+                _LegendDot(
+                    color: AppColors.income, label: l10n.transactionIncome),
+                const SizedBox(width: 20),
+                _LegendDot(
+                    color: AppColors.expense, label: l10n.transactionExpense),
               ],
             ),
           ],
@@ -349,8 +347,7 @@ class _LegendDot extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(label,
-            style:
-                TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
       ],
     );
   }

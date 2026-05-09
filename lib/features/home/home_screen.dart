@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/widgets/empty_state_widget.dart';
 import '../../providers/transaction_provider.dart';
 import '../transactions/add_transaction_sheet.dart';
@@ -45,9 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
+        title: Text(l10n.appTitle),
       ),
       body: Consumer<TransactionProvider>(
         builder: (context, provider, _) {
@@ -67,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 28),
                   Text(
-                    AppStrings.recentTransactions,
+                    l10n.homeRecentTransactions,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
@@ -77,11 +78,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (provider.recentTransactions.isEmpty)
                     EmptyStateWidget(
                       illustration: EmptyIllustration.transactions,
-                      title: AppStrings.noTransactions,
-                      subtitle: AppStrings.noTransactionsHint,
-                      buttonLabel: 'Добавить',
-                      onButtonPressed: () =>
-                          AddTransactionSheet.show(context),
+                      title: l10n.emptyTransactionsTitle,
+                      subtitle: l10n.emptyTransactionsSubtitle,
+                      buttonLabel: l10n.homeAddTransaction,
+                      onButtonPressed: () => AddTransactionSheet.show(context),
                     )
                   else
                     ...provider.recentTransactions
@@ -92,7 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      // ── Animated expanding FAB ─────────────────────────────────────────────
       floatingActionButton: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         transitionBuilder: (child, animation) => ScaleTransition(
@@ -106,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 icon: const Icon(Icons.add),
-                label: const Text('Добавить'),
+                label: Text(l10n.homeAddTransaction),
               )
             : FloatingActionButton(
                 key: const ValueKey('collapsed'),

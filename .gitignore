@@ -68,5 +68,9 @@ coverage/
 .DS_Store
 Thumbs.db
 
-# FVM — local Flutter SDK symlink (each developer installs their own)
+# FVM — local SDK symlink and cached binaries (each developer installs their own)
 .fvm/flutter_sdk
+.fvm/versions/
+
+# Claude Code project settings
+.claude/

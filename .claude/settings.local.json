@@ -8,7 +8,12 @@
       "PowerShell(dart pub global activate fvm 2>&1)",
       "PowerShell($env:PATH += \";$env:USERPROFILE\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\bin\"; Set-Location \"c:\\\\Users\\\\Asus\\\\projects\\\\expense_tracker\"; fvm use 3.41.6 --force 2>&1)",
       "Bash(fvm flutter *)",
-      "Bash(flutter build *)"
+      "Bash(flutter build *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Asus\\\\projects\\\\expense_tracker\" -Recurse -Force)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(flutter gen-l10n *)",
+      "Bash(dir \"c:\\\\Users\\\\Asus\\\\projects\\\\expense_tracker\\\\.dart_tool\\\\flutter_gen\\\\gen_l10n\")"
     ]
   }
 }

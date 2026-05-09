@@ -1,9 +1,9 @@
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/enums/period_filter.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/empty_state_widget.dart';
@@ -27,8 +27,9 @@ class TransactionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Transactions')),
+      appBar: AppBar(title: Text(l10n.navTransactions)),
       body: Consumer<TransactionProvider>(
         builder: (context, provider, _) {
           return Column(
@@ -38,9 +39,9 @@ class TransactionsScreen extends StatelessWidget {
                 child: provider.filteredTransactions.isEmpty
                     ? EmptyStateWidget(
                         illustration: EmptyIllustration.transactions,
-                        title: AppStrings.noTransactions,
-                        subtitle: AppStrings.noTransactionsHint,
-                        buttonLabel: 'Добавить',
+                        title: l10n.emptyTransactionsTitle,
+                        subtitle: l10n.emptyTransactionsSubtitle,
+                        buttonLabel: l10n.homeAddTransaction,
                         onButtonPressed: () =>
                             AddTransactionSheet.show(context),
                       )
@@ -189,6 +190,7 @@ class _DismissibleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Dismissible(
       key: Key(transaction.id),
       direction: DismissDirection.endToStart,
@@ -200,24 +202,22 @@ class _DismissibleTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.centerRight,
-        child:
-            const Icon(Icons.delete_outline, color: Colors.white, size: 26),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 26),
       ),
       confirmDismiss: (_) => showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text(AppStrings.confirmDelete),
-          content: const Text(AppStrings.confirmDeleteMsg),
+          title: Text(l10n.transactionDeleteTitle),
+          content: Text(l10n.transactionDeleteMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text(AppStrings.cancel),
+              child: Text(l10n.buttonCancel),
             ),
             TextButton(
-              style: TextButton.styleFrom(
-                  foregroundColor: AppColors.expense),
+              style: TextButton.styleFrom(foregroundColor: AppColors.expense),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text(AppStrings.delete),
+              child: Text(l10n.buttonDelete),
             ),
           ],
         ),
@@ -229,11 +229,11 @@ class _DismissibleTile extends StatelessWidget {
             .deleteTransaction(transaction.id)
             .catchError((_) {
           messenger.showSnackBar(
-            const SnackBar(content: Text(AppStrings.deleteError)),
+            SnackBar(content: Text(l10n.errorDeleteTransaction)),
           );
         });
         messenger.showSnackBar(
-          const SnackBar(content: Text(AppStrings.deleteSuccess)),
+          SnackBar(content: Text(l10n.transactionDeleteConfirm)),
         );
       },
       child: TransactionListTile(transaction: transaction),

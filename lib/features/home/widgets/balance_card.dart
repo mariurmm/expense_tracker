@@ -1,9 +1,9 @@
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../providers/settings_provider.dart';
 
@@ -23,6 +23,7 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
     return Container(
@@ -51,9 +52,9 @@ class BalanceCard extends StatelessWidget {
               style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 6),
-            const Text(
-              AppStrings.balance,
-              style: TextStyle(color: Colors.white70, fontSize: 16),
+            Text(
+              l10n.homeBalance,
+              style: const TextStyle(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 8),
             // ── Animated balance counter ──────────────────────────────────
@@ -83,7 +84,7 @@ class BalanceCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _SummaryItem(
-                    label: AppStrings.income,
+                    label: l10n.homeIncome,
                     amount: income,
                     icon: Icons.arrow_downward_rounded,
                     color: AppColors.income,
@@ -93,7 +94,7 @@ class BalanceCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _SummaryItem(
-                    label: AppStrings.expense,
+                    label: l10n.homeExpense,
                     amount: expense,
                     icon: Icons.arrow_upward_rounded,
                     color: AppColors.expense,

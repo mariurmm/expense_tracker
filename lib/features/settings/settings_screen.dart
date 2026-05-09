@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:provider/provider.dart';
@@ -48,10 +49,11 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -67,7 +69,7 @@ class SettingsScreen extends StatelessWidget {
               leading: const _IconBox(
                   icon: Icons.currency_exchange_outlined,
                   color: AppColors.primaryLight),
-              title: const Text('Currency'),
+              title: Text(l10n.settingsCurrency),
               subtitle: Text(
                 '${settings.currencySymbol}  '
                 '${_currencies.firstWhere((c) => c.locale == settings.currencyLocale && c.symbol == settings.currencySymbol, orElse: () => _currencies.first).label.split('  ').last}',
@@ -79,14 +81,44 @@ class SettingsScreen extends StatelessWidget {
           ]),
           const SizedBox(height: 16),
 
+          // ---- Language ----
+          _SectionCard(children: [
+            ListTile(
+              leading: const _IconBox(
+                  icon: Icons.language_outlined,
+                  color: AppColors.primaryLight),
+              title: Text(l10n.settingsLanguage),
+              trailing: DropdownButton<Locale>(
+                value: settings.locale,
+                underline: const SizedBox(),
+                items: [
+                  DropdownMenuItem(
+                    value: const Locale('ru'),
+                    child: Text(l10n.settingsLanguageRu),
+                  ),
+                  DropdownMenuItem(
+                    value: const Locale('en'),
+                    child: Text(l10n.settingsLanguageEn),
+                  ),
+                ],
+                onChanged: (locale) {
+                  if (locale != null) {
+                    unawaited(context.read<SettingsProvider>().setLocale(locale));
+                  }
+                },
+              ),
+            ),
+          ]),
+          const SizedBox(height: 16),
+
           // ---- Export ----
           _SectionCard(children: [
             ListTile(
               leading: const _IconBox(
                   icon: Icons.download_rounded,
                   color: AppColors.primary),
-              title: const Text('Экспорт в CSV'),
-              subtitle: const Text('Скачать все транзакции'),
+              title: Text(l10n.settingsExport),
+              subtitle: Text(l10n.settingsExportSubtitle),
               trailing: const Icon(Icons.chevron_right,
                   color: AppColors.textSecondary),
               onTap: () => _exportCSV(context),
@@ -99,13 +131,13 @@ class SettingsScreen extends StatelessWidget {
             ListTile(
               leading: const _IconBox(
                   icon: Icons.info_outline, color: Colors.blueGrey),
-              title: const Text('About'),
-              subtitle: const Text('Version 1.0.0'),
+              title: Text(l10n.settingsAbout),
+              subtitle: Text('${l10n.settingsVersion} 1.0.0'),
               trailing: const Icon(Icons.chevron_right,
                   color: AppColors.textSecondary),
               onTap: () => showAboutDialog(
                 context: context,
-                applicationName: 'Где Деньги?',
+                applicationName: l10n.appTitle,
                 applicationVersion: '1.0.0',
                 applicationLegalese: '© 2025 MIT License',
               ),
@@ -115,9 +147,9 @@ class SettingsScreen extends StatelessWidget {
               leading: const _IconBox(
                   icon: Icons.delete_forever_outlined,
                   color: AppColors.expense),
-              title: const Text(
-                'Clear all data',
-                style: TextStyle(color: AppColors.expense),
+              title: Text(
+                l10n.settingsClearData,
+                style: const TextStyle(color: AppColors.expense),
               ),
               onTap: () => _confirmClearData(context),
             ),
@@ -130,24 +162,21 @@ class SettingsScreen extends StatelessWidget {
   // ---- CSV export ----
 
   Future<void> _exportCSV(BuildContext context) async {
-    final transactions =
-        context.read<TransactionProvider>().allTransactions;
-    final currency =
-        context.read<SettingsProvider>().currencySymbol;
+    final l10n = AppLocalizations.of(context);
+    final transactions = context.read<TransactionProvider>().allTransactions;
+    final currency = context.read<SettingsProvider>().currencySymbol;
 
     if (transactions.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет данных для экспорта')),
+        SnackBar(content: Text(l10n.settingsExportEmpty)),
       );
       return;
     }
 
-    // Show loading indicator
     unawaited(showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (_) =>
-          const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     ));
 
     try {
@@ -155,26 +184,26 @@ class SettingsScreen extends StatelessWidget {
           .exportTransactionsToCSV(transactions.toList(), currency);
 
       if (!context.mounted) return;
-      Navigator.pop(context); // close loading
+      Navigator.pop(context);
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        subject: 'Мои финансы — экспорт',
-        text: 'Экспорт транзакций из приложения Finance Tracker',
+        subject: l10n.settingsExportShareSubject,
+        text: l10n.settingsExportShareText,
       );
     } catch (e) {
       if (!context.mounted) return;
-      Navigator.pop(context); // close loading
+      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка экспорта: $e')),
+        SnackBar(content: Text('${l10n.settingsExportError}: $e')),
       );
     }
   }
 
   // ---- currency picker ----
 
-  void _showCurrencyPicker(
-      BuildContext context, SettingsProvider settings) {
+  void _showCurrencyPicker(BuildContext context, SettingsProvider settings) {
+    final l10n = AppLocalizations.of(context);
     unawaited(showModalBottomSheet<void>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -186,7 +215,7 @@ class SettingsScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Select Currency',
+            Text(l10n.settingsSelectCurrency,
                 style: Theme.of(context)
                     .textTheme
                     .titleMedium
@@ -216,34 +245,30 @@ class SettingsScreen extends StatelessWidget {
   // ---- clear data ----
 
   Future<void> _confirmClearData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear all data?'),
-        content: const Text(
-            'This will permanently delete all transactions and custom '
-            'categories. Default categories will be restored.'),
+        title: Text(l10n.settingsClearData),
+        content: Text(l10n.settingsClearDataConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.buttonCancel),
           ),
           TextButton(
-            style:
-                TextButton.styleFrom(foregroundColor: AppColors.expense),
+            style: TextButton.styleFrom(foregroundColor: AppColors.expense),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Clear'),
+            child: Text(l10n.buttonClear),
           ),
         ],
       ),
     );
     if (confirmed != true || !context.mounted) return;
 
-    // Clear Hive boxes
     await Hive.box<Transaction>(TransactionLocalDatasource.boxName).clear();
     await Hive.box<Category>(CategoryLocalDatasource.boxName).clear();
 
-    // Re-seed default categories
     final catDs = CategoryLocalDatasource();
     for (final cat in buildDefaultCategories()) {
       await catDs.put(cat);
@@ -255,13 +280,13 @@ class SettingsScreen extends StatelessWidget {
     context.read<ReportsProvider>().load();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All data cleared')),
+      SnackBar(content: Text(l10n.settingsClearDone)),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Profile tile (stateful for the edit dialog)
+// Profile tile
 // ---------------------------------------------------------------------------
 
 class _ProfileTile extends StatelessWidget {
@@ -273,26 +298,26 @@ class _ProfileTile extends StatelessWidget {
       settings.userName.isNotEmpty ? settings.userName[0].toUpperCase() : '?';
 
   Future<void> _editName(BuildContext context) async {
-    final controller =
-        TextEditingController(text: settings.userName);
+    final l10n = AppLocalizations.of(context);
+    final controller = TextEditingController(text: settings.userName);
     final saved = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Your name'),
+        title: Text(l10n.settingsYourName),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: 'Enter your name'),
+          decoration: InputDecoration(hintText: l10n.settingsEnterName),
           textCapitalization: TextCapitalization.words,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n.buttonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('Save'),
+            child: Text(l10n.buttonSave),
           ),
         ],
       ),
@@ -304,6 +329,7 @@ class _ProfileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListTile(
       leading: CircleAvatar(
         radius: 22,
@@ -317,16 +343,14 @@ class _ProfileTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        settings.userName.isEmpty ? 'Tap to set your name' : settings.userName,
+        settings.userName.isEmpty ? l10n.settingsTapName : settings.userName,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color:
-              settings.userName.isEmpty ? Colors.grey.shade400 : null,
+          color: settings.userName.isEmpty ? Colors.grey.shade400 : null,
         ),
       ),
-      subtitle: const Text('Your name'),
-      trailing: const Icon(Icons.edit_outlined,
-          color: AppColors.textSecondary),
+      subtitle: Text(l10n.settingsYourName),
+      trailing: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
       onTap: () => _editName(context),
     );
   }

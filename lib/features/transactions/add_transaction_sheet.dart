@@ -1,10 +1,10 @@
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_strings.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/transaction_model.dart';
@@ -88,10 +88,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.selectCategory)),
+        SnackBar(content: Text(l10n.errorCategoryEmpty)),
       );
       return;
     }
@@ -116,13 +117,14 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
       if (mounted) {
         setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.saveError)),
+          SnackBar(content: Text(AppLocalizations.of(context).errorSaveTransaction)),
         );
       }
     }
   }
 
   Future<void> _showNewCategoryDialog() async {
+    final l10n = AppLocalizations.of(context);
     final nameCtrl = TextEditingController();
     var selectedColor = _presetColors[0];
     var selectedIconCodePoint = Icons.category.codePoint;
@@ -131,7 +133,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDlg) => AlertDialog(
-          title: const Text('New Category'),
+          title: Text(l10n.categoryAddTitle),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -142,16 +144,16 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                   controller: nameCtrl,
                   autofocus: true,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Category name',
+                  decoration: InputDecoration(
+                    labelText: l10n.categoryName,
                     isDense: true,
                   ),
                 ),
                 const SizedBox(height: 20),
 
                 // Color picker
-                const Text('Color',
-                    style: TextStyle(
+                Text(l10n.categoryColor,
+                    style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Row(
@@ -168,14 +170,12 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                           color: Color(c),
                           shape: BoxShape.circle,
                           border: selected
-                              ? Border.all(
-                                  color: Colors.black87, width: 2.5)
+                              ? Border.all(color: Colors.black87, width: 2.5)
                               : null,
                           boxShadow: selected
                               ? [
                                   BoxShadow(
-                                    color: Color(c)
-                                        .withValues(alpha: 0.4),
+                                    color: Color(c).withValues(alpha: 0.4),
                                     blurRadius: 6,
                                   )
                                 ]
@@ -188,26 +188,24 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                 const SizedBox(height: 20),
 
                 // Icon picker
-                const Text('Icon',
-                    style: TextStyle(
+                Text(l10n.categoryIcon,
+                    style: const TextStyle(
                         fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: _pickerIcons.map((ic) {
-                    final selected =
-                        selectedIconCodePoint == ic.codePoint;
+                    final selected = selectedIconCodePoint == ic.codePoint;
                     return GestureDetector(
-                      onTap: () => setDlg(
-                          () => selectedIconCodePoint = ic.codePoint),
+                      onTap: () =>
+                          setDlg(() => selectedIconCodePoint = ic.codePoint),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: selected
-                              ? AppColors.primary
-                                  .withValues(alpha: 0.15)
+                              ? AppColors.primary.withValues(alpha: 0.15)
                               : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(8),
                           border: selected
@@ -232,7 +230,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: Text(l10n.buttonCancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -245,13 +243,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                   color: selectedColor,
                   isCustom: true,
                 );
-                await context
-                    .read<CategoryProvider>()
-                    .addCategory(cat);
+                await context.read<CategoryProvider>().addCategory(cat);
                 if (ctx.mounted) Navigator.pop(ctx);
                 if (mounted) setState(() => _selectedCategory = name);
               },
-              child: const Text('Save'),
+              child: Text(l10n.buttonSave),
             ),
           ],
         ),
@@ -261,6 +257,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final activeColor =
         _type == TransactionType.income ? AppColors.income : AppColors.expense;
@@ -292,7 +289,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
             ),
             const SizedBox(height: 20),
             Text(
-              AppStrings.addTransaction,
+              l10n.transactionAddTitle,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -303,21 +300,20 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
             // Income / Expense toggle
             Center(
               child: SegmentedButton<TransactionType>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: TransactionType.income,
-                    label: Text('Income'),
-                    icon: Icon(Icons.arrow_downward_rounded),
+                    label: Text(l10n.transactionIncome),
+                    icon: const Icon(Icons.arrow_downward_rounded),
                   ),
                   ButtonSegment(
                     value: TransactionType.expense,
-                    label: Text('Expense'),
-                    icon: Icon(Icons.arrow_upward_rounded),
+                    label: Text(l10n.transactionExpense),
+                    icon: const Icon(Icons.arrow_upward_rounded),
                   ),
                 ],
                 selected: {_type},
-                onSelectionChanged: (v) =>
-                    setState(() => _type = v.first),
+                onSelectionChanged: (v) => setState(() => _type = v.first),
                 style: ButtonStyle(
                   backgroundColor:
                       WidgetStateProperty.resolveWith((states) {
@@ -333,8 +329,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                     }
                     return Colors.grey.shade600;
                   }),
-                  iconColor:
-                      WidgetStateProperty.resolveWith((states) {
+                  iconColor: WidgetStateProperty.resolveWith((states) {
                     if (states.contains(WidgetState.selected)) {
                       return activeColor;
                     }
@@ -354,15 +349,13 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                 FilteringTextInputFormatter.allow(RegExp('[0-9.,]')),
               ],
               decoration: InputDecoration(
-                labelText: AppStrings.amount,
+                labelText: l10n.transactionAmount,
                 prefixText: '${settings.currencySymbol} ',
               ),
               validator: (v) {
-                if (v == null || v.isEmpty) return 'Enter an amount';
+                if (v == null || v.isEmpty) return l10n.errorAmountEmpty;
                 final p = double.tryParse(v.replaceAll(',', '.'));
-                if (p == null || p <= 0) {
-                  return 'Enter a valid amount greater than 0';
-                }
+                if (p == null || p <= 0) return l10n.errorAmountZero;
                 return null;
               },
             ),
@@ -370,7 +363,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
 
             // Category label
             Text(
-              AppStrings.category,
+              l10n.transactionCategory,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
@@ -383,16 +376,13 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
               height: 40,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                // +1 for the "New" chip
                 itemCount: categories.length + 1,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, i) {
-                  // Last item = "New category" chip
                   if (i == categories.length) {
                     return ActionChip(
                       avatar: const Icon(Icons.add, size: 16),
-                      label: const Text('New'),
+                      label: Text(l10n.categoryNew),
                       onPressed: _showNewCategoryDialog,
                     );
                   }
@@ -413,14 +403,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                     checkmarkColor: catColor,
                     labelStyle: TextStyle(
                       color: selected ? catColor : null,
-                      fontWeight: selected
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+                      fontWeight:
+                          selected ? FontWeight.w600 : FontWeight.normal,
                     ),
                     side: BorderSide(
-                      color: selected
-                          ? catColor
-                          : Colors.grey.shade300,
+                      color: selected ? catColor : Colors.grey.shade300,
                     ),
                   );
                 },
@@ -462,9 +449,9 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
             TextFormField(
               controller: _noteController,
               maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: AppStrings.note,
-                hintText: 'e.g. Lunch with colleagues',
+              decoration: InputDecoration(
+                labelText: l10n.transactionNote,
+                hintText: l10n.transactionNoteHint,
                 alignLabelWithHint: true,
               ),
             ),
@@ -483,7 +470,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text(AppStrings.save),
+                    : Text(l10n.buttonSave),
               ),
             ),
           ],
