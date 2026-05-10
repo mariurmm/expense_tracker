@@ -15,7 +15,7 @@ enum TransactionType {
 
 @freezed
 @HiveType(typeId: 0)
-class Transaction with _$Transaction {
+abstract class Transaction with _$Transaction {
   const factory Transaction({
     @HiveField(0) required String id,
     @HiveField(1) required double amount,

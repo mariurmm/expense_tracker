@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -46,9 +46,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i875.TransactionLocalDatasource(),
     );
     gh.lazySingleton<_i974.Logger>(() => registerModule.logger);
-    gh.lazySingleton<_i679.CategoryRepository>(
-      () => _i679.CategoryRepository(
-        datasource: gh<_i832.CategoryLocalDatasource>(),
+    gh.lazySingleton<_i706.TransactionRepository>(
+      () => _i706.TransactionRepository(
+        datasource: gh<_i875.TransactionLocalDatasource>(),
       ),
     );
     gh.lazySingleton<_i304.SettingsRepository>(
@@ -56,9 +56,9 @@ extension GetItInjectableX on _i174.GetIt {
         datasource: gh<_i336.SettingsLocalDatasource>(),
       ),
     );
-    gh.lazySingleton<_i706.TransactionRepository>(
-      () => _i706.TransactionRepository(
-        datasource: gh<_i875.TransactionLocalDatasource>(),
+    gh.lazySingleton<_i679.CategoryRepository>(
+      () => _i679.CategoryRepository(
+        datasource: gh<_i832.CategoryLocalDatasource>(),
       ),
     );
     return this;

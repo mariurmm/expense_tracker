@@ -2,7 +2,7 @@
 // Do not modify
 // Check in to version control
 
-import 'package:hive_ce/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:expense_tracker/data/models/category_model.dart';
 import 'package:expense_tracker/data/models/transaction_model.dart';
 

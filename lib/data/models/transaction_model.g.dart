@@ -96,17 +96,16 @@ class TransactionTypeAdapter extends TypeAdapter<TransactionType> {
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$TransactionImpl _$$TransactionImplFromJson(Map<String, dynamic> json) =>
-    _$TransactionImpl(
-      id: json['id'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      type: $enumDecode(_$TransactionTypeEnumMap, json['type']),
-      category: json['category'] as String,
-      date: DateTime.parse(json['date'] as String),
-      note: json['note'] as String?,
-    );
+_Transaction _$TransactionFromJson(Map<String, dynamic> json) => _Transaction(
+  id: json['id'] as String,
+  amount: (json['amount'] as num).toDouble(),
+  type: $enumDecode(_$TransactionTypeEnumMap, json['type']),
+  category: json['category'] as String,
+  date: DateTime.parse(json['date'] as String),
+  note: json['note'] as String?,
+);
 
-Map<String, dynamic> _$$TransactionImplToJson(_$TransactionImpl instance) =>
+Map<String, dynamic> _$TransactionToJson(_Transaction instance) =>
     <String, dynamic>{
       'id': instance.id,
       'amount': instance.amount,

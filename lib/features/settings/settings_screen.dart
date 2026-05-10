@@ -264,12 +264,14 @@ class SettingsScreen extends StatelessWidget {
       if (!context.mounted) return;
       Navigator.pop(context);
 
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        subject: l10n.settingsExportShareSubject,
-        text: l10n.settingsExportShareText,
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          subject: l10n.settingsExportShareSubject,
+          text: l10n.settingsExportShareText,
+        ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       if (!context.mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -305,8 +307,9 @@ class SettingsScreen extends StatelessWidget {
                 trailing: selected
                     ? const Icon(Icons.check, color: AppColors.primary)
                     : null,
-                onTap: () {
-                  settings.setCurrency(symbol: c.symbol, locale: c.locale);
+                onTap: () async {
+                  await settings.setCurrency(symbol: c.symbol, locale: c.locale);
+                  if (!context.mounted) return;
                   Navigator.pop(context);
                 },
               );

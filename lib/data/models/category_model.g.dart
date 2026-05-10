@@ -56,20 +56,18 @@ class CategoryAdapter extends TypeAdapter<Category> {
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$CategoryImpl _$$CategoryImplFromJson(Map<String, dynamic> json) =>
-    _$CategoryImpl(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      icon: (json['icon'] as num).toInt(),
-      color: (json['color'] as num).toInt(),
-      isCustom: json['isCustom'] as bool,
-    );
+_Category _$CategoryFromJson(Map<String, dynamic> json) => _Category(
+  id: json['id'] as String,
+  name: json['name'] as String,
+  icon: (json['icon'] as num).toInt(),
+  color: (json['color'] as num).toInt(),
+  isCustom: json['isCustom'] as bool,
+);
 
-Map<String, dynamic> _$$CategoryImplToJson(_$CategoryImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'icon': instance.icon,
-      'color': instance.color,
-      'isCustom': instance.isCustom,
-    };
+Map<String, dynamic> _$CategoryToJson(_Category instance) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'icon': instance.icon,
+  'color': instance.color,
+  'isCustom': instance.isCustom,
+};

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:csv/csv.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -44,7 +43,14 @@ class ExportService {
       ['Баланс', '', '', (totalIncome - totalExpense).toStringAsFixed(2), currencySymbol, ''],
     ]);
 
-    final csv = const ListToCsvConverter().convert(rows);
+    final csv = rows
+        .map(
+          (row) => row
+              .map((cell) => '"${cell.toString().replaceAll('"', '""')}"')
+              .join(','),
+        )
+        .join('\n');
+
     final directory = await getApplicationDocumentsDirectory();
     final fileName =
         'finance_${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}.csv';

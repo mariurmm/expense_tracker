@@ -255,16 +255,18 @@ class _DismissibleTile extends StatelessWidget {
           ],
         ),
       ),
-      onDismissed: (_) {
+      onDismissed: (_) async {
         final messenger = ScaffoldMessenger.of(context);
-        context
-            .read<TransactionProvider>()
-            .deleteTransaction(transaction.id)
-            .catchError((_) {
+        try {
+          await context
+              .read<TransactionProvider>()
+              .deleteTransaction(transaction.id);
+        } on Exception catch (_) {
           messenger.showSnackBar(
             SnackBar(content: Text(l10n.errorDeleteTransaction)),
           );
-        });
+          return;
+        }
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.transactionDeleteConfirm)),
         );

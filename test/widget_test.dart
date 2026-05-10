@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('placeholder — app has no unit-testable counter widget',
-      (WidgetTester tester) async {
+      (tester) async {
     // Hive requires platform channels (path_provider) which are not available
     // in the widget-test host. Boot-level testing is covered by running the
     // app on a device or emulator.

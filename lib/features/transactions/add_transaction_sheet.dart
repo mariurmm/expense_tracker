@@ -107,7 +107,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
     try {
       await context.read<TransactionProvider>().addTransaction(transaction);
       if (mounted) Navigator.pop(context);
-    } catch (_) {
+    } on Exception catch (_) {
       if (mounted) {
         setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(

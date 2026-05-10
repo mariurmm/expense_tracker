@@ -6,7 +6,7 @@ part 'category_model.g.dart';
 
 @freezed
 @HiveType(typeId: 2)
-class Category with _$Category {
+abstract class Category with _$Category {
   const factory Category({
     @HiveField(0) required String id,
     @HiveField(1) required String name,
