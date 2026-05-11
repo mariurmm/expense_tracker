@@ -118,6 +118,45 @@ class AppLocalizationsRu extends AppLocalizations {
   String get categoryNew => 'Новая';
 
   @override
+  String get categoryTypeExpense => 'Для расходов';
+
+  @override
+  String get categoryTypeIncome => 'Для доходов';
+
+  @override
+  String get catExpenseFood => 'Еда';
+
+  @override
+  String get catExpenseTransport => 'Транспорт';
+
+  @override
+  String get catExpenseShopping => 'Покупки';
+
+  @override
+  String get catExpenseHealth => 'Здоровье';
+
+  @override
+  String get catExpenseEntertainment => 'Развлечения';
+
+  @override
+  String get catExpenseOther => 'Другое';
+
+  @override
+  String get catIncomeSalary => 'Зарплата';
+
+  @override
+  String get catIncomeFreelance => 'Фриланс';
+
+  @override
+  String get catIncomeGift => 'Подарок';
+
+  @override
+  String get catIncomeInvestments => 'Инвестиции';
+
+  @override
+  String get catIncomeOther => 'Прочий доход';
+
+  @override
   String get reportsPeriodWeek => 'Неделя';
 
   @override

@@ -8,11 +8,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/services/export_service.dart';
-import '../../data/datasources/category_local_datasource.dart';
 import '../../data/datasources/transaction_local_datasource.dart';
-import '../../data/models/category_model.dart';
-import '../../data/models/default_categories.dart';
 import '../../data/models/transaction_model.dart';
+import '../../data/repositories/category_repository.dart';
 import '../../di/injection.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/reports_provider.dart';
@@ -344,12 +342,7 @@ class SettingsScreen extends StatelessWidget {
     if (confirmed != true || !context.mounted) return;
 
     await Hive.box<Transaction>(TransactionLocalDatasource.boxName).clear();
-    await Hive.box<Category>(CategoryLocalDatasource.boxName).clear();
-
-    final catDs = CategoryLocalDatasource();
-    for (final cat in buildDefaultCategories()) {
-      await catDs.put(cat);
-    }
+    await getIt<CategoryRepository>().clearAndReseed();
 
     if (!context.mounted) return;
     context.read<TransactionProvider>().loadTransactions();

@@ -314,6 +314,84 @@ abstract class AppLocalizations {
   /// **'New'**
   String get categoryNew;
 
+  /// No description provided for @categoryTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'For expenses'**
+  String get categoryTypeExpense;
+
+  /// No description provided for @categoryTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'For income'**
+  String get categoryTypeIncome;
+
+  /// No description provided for @catExpenseFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get catExpenseFood;
+
+  /// No description provided for @catExpenseTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get catExpenseTransport;
+
+  /// No description provided for @catExpenseShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get catExpenseShopping;
+
+  /// No description provided for @catExpenseHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get catExpenseHealth;
+
+  /// No description provided for @catExpenseEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get catExpenseEntertainment;
+
+  /// No description provided for @catExpenseOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get catExpenseOther;
+
+  /// No description provided for @catIncomeSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get catIncomeSalary;
+
+  /// No description provided for @catIncomeFreelance.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get catIncomeFreelance;
+
+  /// No description provided for @catIncomeGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get catIncomeGift;
+
+  /// No description provided for @catIncomeInvestments.
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get catIncomeInvestments;
+
+  /// No description provided for @catIncomeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other income'**
+  String get catIncomeOther;
+
   /// No description provided for @reportsPeriodWeek.
   ///
   /// In en, this message translates to:

@@ -16,12 +16,14 @@ import '../data/repositories/transaction_repository.dart';
 class PieSliceData {
   const PieSliceData({
     required this.categoryName,
+    required this.categoryNameKey,
     required this.amount,
     required this.percentage,
     required this.color,
   });
 
   final String categoryName;
+  final String categoryNameKey;
   final double amount;
   final double percentage;
   final Color color;
@@ -144,6 +146,7 @@ class ReportsProvider extends ChangeNotifier {
       );
       return PieSliceData(
         categoryName: e.key,
+        categoryNameKey: cat.nameKey,
         amount: e.value,
         percentage: e.value / total * 100,
         color: Color(cat.color),

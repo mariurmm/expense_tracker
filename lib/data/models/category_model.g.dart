@@ -22,13 +22,15 @@ class CategoryAdapter extends TypeAdapter<Category> {
       icon: (fields[2] as num).toInt(),
       color: (fields[3] as num).toInt(),
       isCustom: fields[4] as bool,
+      nameKey: fields[5] == null ? '' : fields[5] as String,
+      categoryType: fields[6] == null ? 'expense' : fields[6] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Category obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class CategoryAdapter extends TypeAdapter<Category> {
       ..writeByte(3)
       ..write(obj.color)
       ..writeByte(4)
-      ..write(obj.isCustom);
+      ..write(obj.isCustom)
+      ..writeByte(5)
+      ..write(obj.nameKey)
+      ..writeByte(6)
+      ..write(obj.categoryType);
   }
 
   @override
@@ -62,6 +68,8 @@ _Category _$CategoryFromJson(Map<String, dynamic> json) => _Category(
   icon: (json['icon'] as num).toInt(),
   color: (json['color'] as num).toInt(),
   isCustom: json['isCustom'] as bool,
+  nameKey: json['nameKey'] as String? ?? '',
+  categoryType: json['categoryType'] as String? ?? 'expense',
 );
 
 Map<String, dynamic> _$CategoryToJson(_Category instance) => <String, dynamic>{
@@ -70,4 +78,6 @@ Map<String, dynamic> _$CategoryToJson(_Category instance) => <String, dynamic>{
   'icon': instance.icon,
   'color': instance.color,
   'isCustom': instance.isCustom,
+  'nameKey': instance.nameKey,
+  'categoryType': instance.categoryType,
 };

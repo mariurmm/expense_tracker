@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/category_name_resolver.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/transaction_model.dart';
 import '../../providers/category_provider.dart';
@@ -124,6 +125,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
     final nameCtrl = TextEditingController();
     var selectedColor = _presetColors[0];
     var selectedIconCodePoint = Icons.category.codePoint;
+    var selectedCategoryType = _type == TransactionType.income ? 'income' : 'expense';
 
     await showDialog<void>(
       context: context,
@@ -135,6 +137,22 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SegmentedButton<String>(
+                  segments: [
+                    ButtonSegment(
+                      value: 'expense',
+                      label: Text(l10n.categoryTypeExpense),
+                    ),
+                    ButtonSegment(
+                      value: 'income',
+                      label: Text(l10n.categoryTypeIncome),
+                    ),
+                  ],
+                  selected: {selectedCategoryType},
+                  onSelectionChanged: (s) =>
+                      setDlg(() => selectedCategoryType = s.first),
+                ),
+                const SizedBox(height: 16),
                 TextField(
                   controller: nameCtrl,
                   autofocus: true,
@@ -233,6 +251,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                   icon: selectedIconCodePoint,
                   color: selectedColor,
                   isCustom: true,
+                  categoryType: selectedCategoryType,
                 );
                 await context.read<CategoryProvider>().addCategory(cat);
                 if (ctx.mounted) Navigator.pop(ctx);
@@ -252,7 +271,10 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = context.watch<SettingsProvider>();
-    final categories = context.watch<CategoryProvider>().categories;
+    final categoryProvider = context.watch<CategoryProvider>();
+    final categories = _type == TransactionType.expense
+        ? categoryProvider.expenseCategories
+        : categoryProvider.incomeCategories;
     final bgColor =
         isDark ? AppColors.cardBackgroundDark : AppColors.cardBackground;
 
@@ -307,7 +329,10 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                         ? Icons.arrow_downward_rounded
                         : Icons.arrow_upward_rounded;
                     return GestureDetector(
-                      onTap: () => setState(() => _type = type),
+                      onTap: () => setState(() {
+                        _type = type;
+                        _selectedCategory = null;
+                      }),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.easeInOut,
@@ -443,7 +468,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                       color:
                           selected ? catColor : Colors.grey.shade500,
                     ),
-                    label: Text(cat.name),
+                    label: Text(resolveCategoryName(cat, l10n)),
                     selected: selected,
                     onSelected: (_) =>
                         setState(() => _selectedCategory = cat.name),

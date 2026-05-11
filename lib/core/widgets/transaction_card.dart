@@ -1,3 +1,4 @@
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +6,7 @@ import '../../data/models/transaction_model.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../constants/app_colors.dart';
+import '../utils/category_name_resolver.dart';
 import '../utils/formatters.dart';
 
 class TransactionCard extends StatelessWidget {
@@ -14,6 +16,7 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final catProvider = context.watch<CategoryProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -51,7 +54,7 @@ class TransactionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  transaction.category,
+                  cat != null ? resolveCategoryName(cat, l10n) : transaction.category,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,

@@ -11,6 +11,12 @@ class CategoryProvider extends ChangeNotifier {
 
   List<Category> get categories => List.unmodifiable(_categories);
 
+  List<Category> get expenseCategories =>
+      _categories.where((c) => c.categoryType == 'expense').toList();
+
+  List<Category> get incomeCategories =>
+      _categories.where((c) => c.categoryType == 'income').toList();
+
   void loadCategories() {
     _categories = _repository.getAllCategories();
     notifyListeners();

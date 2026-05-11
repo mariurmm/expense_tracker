@@ -55,12 +55,6 @@ class TransactionsScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => AddTransactionSheet.show(context),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

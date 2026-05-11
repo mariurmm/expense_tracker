@@ -1,7 +1,9 @@
+import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/category_name_resolver.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/models/transaction_model.dart';
 import '../../../providers/category_provider.dart';
@@ -14,13 +16,13 @@ class TransactionListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = context.watch<SettingsProvider>();
     final catProvider = context.watch<CategoryProvider>();
 
     final isIncome = transaction.type == TransactionType.income;
     final sign = isIncome ? '+' : '-';
 
-    // Resolve category colour & icon from CategoryProvider
     final cat = catProvider.findByName(transaction.category);
     final catColor = cat != null ? Color(cat.color) : AppColors.textSecondary;
     final catIcon = cat != null
@@ -45,7 +47,7 @@ class TransactionListTile extends StatelessWidget {
           child: Icon(catIcon, color: catColor, size: 22),
         ),
         title: Text(
-          transaction.category,
+          cat != null ? resolveCategoryName(cat, l10n) : transaction.category,
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
         ),
         subtitle: Text(

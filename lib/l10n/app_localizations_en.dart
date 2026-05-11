@@ -118,6 +118,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNew => 'New';
 
   @override
+  String get categoryTypeExpense => 'For expenses';
+
+  @override
+  String get categoryTypeIncome => 'For income';
+
+  @override
+  String get catExpenseFood => 'Food';
+
+  @override
+  String get catExpenseTransport => 'Transport';
+
+  @override
+  String get catExpenseShopping => 'Shopping';
+
+  @override
+  String get catExpenseHealth => 'Health';
+
+  @override
+  String get catExpenseEntertainment => 'Entertainment';
+
+  @override
+  String get catExpenseOther => 'Other';
+
+  @override
+  String get catIncomeSalary => 'Salary';
+
+  @override
+  String get catIncomeFreelance => 'Freelance';
+
+  @override
+  String get catIncomeGift => 'Gift';
+
+  @override
+  String get catIncomeInvestments => 'Investments';
+
+  @override
+  String get catIncomeOther => 'Other income';
+
+  @override
   String get reportsPeriodWeek => 'Week';
 
   @override

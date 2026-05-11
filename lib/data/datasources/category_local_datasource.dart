@@ -15,5 +15,7 @@ class CategoryLocalDatasource {
 
   Future<void> delete(String id) => _box.delete(id);
 
+  Future<void> clear() => _box.clear();
+
   List<Category> getAll() => _box.values.toList();
 }

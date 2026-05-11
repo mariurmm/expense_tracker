@@ -146,13 +146,6 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => AddTransactionSheet.show(context),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

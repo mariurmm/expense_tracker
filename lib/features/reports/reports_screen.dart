@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/category_name_resolver.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/period_selector.dart';
@@ -348,6 +349,7 @@ class _PieLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: reports.pieSlices.map((s) {
         return Padding(
@@ -365,7 +367,7 @@ class _PieLegend extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  s.categoryName,
+                  resolveCategoryNameByKey(s.categoryNameKey, s.categoryName, l10n),
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w500),
                 ),
