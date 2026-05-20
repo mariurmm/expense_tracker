@@ -54,11 +54,9 @@ class ReportsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  Center(
-                    child: PeriodSelector(
-                      current: reports.periodFilter,
-                      onChanged: reports.setPeriodFilter,
-                    ),
+                  PeriodSelector(
+                    current: reports.periodFilter,
+                    onChanged: reports.setPeriodFilter,
                   ),
                 ],
               ),
@@ -298,11 +296,11 @@ class _PieSection extends StatelessWidget {
                           value: s.amount,
                           color: s.color,
                           title: '',
-                          radius: 68,
+                          radius: 60,
                         ),
                       )
                       .toList(),
-                  centerSpaceRadius: 56,
+                  centerSpaceRadius: 68,
                   sectionsSpace: 3,
                   pieTouchData: PieTouchData(),
                 ),
@@ -310,27 +308,38 @@ class _PieSection extends StatelessWidget {
                 curve: Curves.easeInOutCubic,
               ),
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.reportsTotal,
-                  style: TextStyle(
-                      fontSize: 12, color: Colors.grey.shade500),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  Formatters.formatCurrencyWith(
-                    reports.totalExpense,
-                    locale: settings.currencyLocale,
-                    symbol: settings.currencySymbol,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l10n.reportsTotal,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
+                    ),
                   ),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                  const SizedBox(height: 4),
+                  Text(
+                    Formatters.formatCurrencyWith(
+                      reports.totalExpense,
+                      locale: settings.currencyLocale,
+                      symbol: settings.currencySymbol,
+                    ),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

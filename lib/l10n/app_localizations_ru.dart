@@ -309,4 +309,40 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorGeneral => 'Что-то пошло не так';
+
+  @override
+  String get csvHeaderDate => 'Дата';
+
+  @override
+  String get csvHeaderType => 'Тип';
+
+  @override
+  String get csvHeaderCategory => 'Категория';
+
+  @override
+  String get csvHeaderAmount => 'Сумма';
+
+  @override
+  String get csvHeaderCurrency => 'Валюта';
+
+  @override
+  String get csvHeaderNote => 'Заметка';
+
+  @override
+  String get csvTypeIncome => 'Доход';
+
+  @override
+  String get csvTypeExpense => 'Расход';
+
+  @override
+  String get csvTotalIncome => 'Итого доходов';
+
+  @override
+  String get csvTotalExpense => 'Итого расходов';
+
+  @override
+  String get csvBalance => 'Баланс';
+
+  @override
+  String get csvExportFileName => 'финансы';
 }

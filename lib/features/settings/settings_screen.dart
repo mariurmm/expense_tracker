@@ -83,44 +83,72 @@ class SettingsScreen extends StatelessWidget {
                 // ---- Appearance ----
                 _GroupLabel(label: l10n.settingsTheme, isDark: isDark),
                 _SectionCard(isDark: isDark, children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        SegmentedButton<ThemeMode>(
-                          segments: [
-                            ButtonSegment(
-                              value: ThemeMode.light,
-                              label: Text(l10n.settingsThemeLight),
-                              icon: const Icon(Icons.light_mode_outlined,
-                                  size: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<ThemeMode>(
+                        segments: [
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            label: Text(l10n.settingsThemeLight),
+                            icon: const Icon(Icons.light_mode_outlined,
+                                size: 20),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            label: Text(l10n.settingsThemeDark),
+                            icon: const Icon(Icons.dark_mode_outlined,
+                                size: 20),
+                          ),
+                        ],
+                        selected: {settings.themeMode},
+                        onSelectionChanged: (v) => unawaited(
+                            context
+                                .read<SettingsProvider>()
+                                .setThemeMode(v.first)),
+                        expandedInsets: EdgeInsets.zero,
+                        style: ButtonStyle(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          minimumSize: const WidgetStatePropertyAll(
+                            Size(0, 48),
+                          ),
+                          backgroundColor:
+                              WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return AppColors.primary;
+                            }
+                            return isDark
+                                ? AppColors.cardBackgroundDark
+                                : AppColors.cardBackground;
+                          }),
+                          foregroundColor:
+                              WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Colors.white;
+                            }
+                            return isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondary;
+                          }),
+                          side: WidgetStatePropertyAll(
+                            BorderSide(
+                              color: isDark
+                                  ? AppColors.dividerDark
+                                  : AppColors.divider,
                             ),
-                            ButtonSegment(
-                              value: ThemeMode.system,
-                              label: Text(l10n.settingsThemeSystem),
-                              icon: const Icon(Icons.brightness_auto_outlined,
-                                  size: 18),
+                          ),
+                          textStyle: const WidgetStatePropertyAll(
+                            TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
                             ),
-                            ButtonSegment(
-                              value: ThemeMode.dark,
-                              label: Text(l10n.settingsThemeDark),
-                              icon: const Icon(Icons.dark_mode_outlined,
-                                  size: 18),
+                          ),
+                          shape: const WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(16)),
                             ),
-                          ],
-                          selected: {settings.themeMode},
-                          onSelectionChanged: (v) => unawaited(
-                              context
-                                  .read<SettingsProvider>()
-                                  .setThemeMode(v.first)),
-                          style: const ButtonStyle(
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                         ),
-                      ],
                     ),
                   ),
                 ]),
@@ -194,30 +222,8 @@ class SettingsScreen extends StatelessWidget {
                 ]),
                 const SizedBox(height: 20),
 
-                // ---- About & Danger ----
-                _GroupLabel(label: l10n.settingsAbout, isDark: isDark),
+                // ---- Danger ----
                 _SectionCard(isDark: isDark, children: [
-                  ListTile(
-                    leading: const _IconBox(
-                        icon: Icons.info_outline,
-                        color: Colors.blueGrey),
-                    title: Text(l10n.settingsAbout),
-                    subtitle: Text('${l10n.settingsVersion} 1.0.0'),
-                    trailing: const Icon(Icons.chevron_right,
-                        color: AppColors.textSecondary),
-                    onTap: () => showAboutDialog(
-                      context: context,
-                      applicationName: l10n.appTitle,
-                      applicationVersion: '1.0.0',
-                      applicationLegalese: '© 2025 MIT License',
-                    ),
-                  ),
-                  Divider(
-                      height: 1,
-                      indent: 56,
-                      color: isDark
-                          ? AppColors.dividerDark
-                          : AppColors.divider),
                   ListTile(
                     leading: const _IconBox(
                         icon: Icons.delete_forever_outlined,
@@ -257,7 +263,7 @@ class SettingsScreen extends StatelessWidget {
 
     try {
       final file = await getIt<ExportService>()
-          .exportTransactionsToCSV(transactions.toList(), currency);
+          .exportTransactionsToCSV(transactions.toList(), currency, l10n);
 
       if (!context.mounted) return;
       Navigator.pop(context);

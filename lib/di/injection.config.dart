@@ -35,7 +35,6 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    gh.lazySingleton<_i415.ExportService>(() => const _i415.ExportService());
     gh.lazySingleton<_i832.CategoryLocalDatasource>(
       () => _i832.CategoryLocalDatasource(),
     );
@@ -60,6 +59,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i679.CategoryRepository(
         datasource: gh<_i832.CategoryLocalDatasource>(),
       ),
+    );
+    gh.lazySingleton<_i415.ExportService>(
+      () => _i415.ExportService(gh<_i679.CategoryRepository>()),
     );
     return this;
   }

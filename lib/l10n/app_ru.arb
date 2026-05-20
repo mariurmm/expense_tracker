@@ -108,5 +108,18 @@
   "errorCategoryEmpty": "Выберите категорию",
   "errorSaveTransaction": "Не удалось сохранить транзакцию",
   "errorDeleteTransaction": "Не удалось удалить транзакцию",
-  "errorGeneral": "Что-то пошло не так"
+  "errorGeneral": "Что-то пошло не так",
+
+  "csvHeaderDate": "Дата",
+  "csvHeaderType": "Тип",
+  "csvHeaderCategory": "Категория",
+  "csvHeaderAmount": "Сумма",
+  "csvHeaderCurrency": "Валюта",
+  "csvHeaderNote": "Заметка",
+  "csvTypeIncome": "Доход",
+  "csvTypeExpense": "Расход",
+  "csvTotalIncome": "Итого доходов",
+  "csvTotalExpense": "Итого расходов",
+  "csvBalance": "Баланс",
+  "csvExportFileName": "финансы"
 }

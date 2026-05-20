@@ -691,6 +691,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong'**
   String get errorGeneral;
+
+  /// No description provided for @csvHeaderDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get csvHeaderDate;
+
+  /// No description provided for @csvHeaderType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get csvHeaderType;
+
+  /// No description provided for @csvHeaderCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get csvHeaderCategory;
+
+  /// No description provided for @csvHeaderAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get csvHeaderAmount;
+
+  /// No description provided for @csvHeaderCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get csvHeaderCurrency;
+
+  /// No description provided for @csvHeaderNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get csvHeaderNote;
+
+  /// No description provided for @csvTypeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get csvTypeIncome;
+
+  /// No description provided for @csvTypeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get csvTypeExpense;
+
+  /// No description provided for @csvTotalIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Total income'**
+  String get csvTotalIncome;
+
+  /// No description provided for @csvTotalExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Total expenses'**
+  String get csvTotalExpense;
+
+  /// No description provided for @csvBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get csvBalance;
+
+  /// No description provided for @csvExportFileName.
+  ///
+  /// In en, this message translates to:
+  /// **'finance'**
+  String get csvExportFileName;
 }
 
 class _AppLocalizationsDelegate

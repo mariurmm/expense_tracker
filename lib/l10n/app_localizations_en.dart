@@ -310,4 +310,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorGeneral => 'Something went wrong';
+
+  @override
+  String get csvHeaderDate => 'Date';
+
+  @override
+  String get csvHeaderType => 'Type';
+
+  @override
+  String get csvHeaderCategory => 'Category';
+
+  @override
+  String get csvHeaderAmount => 'Amount';
+
+  @override
+  String get csvHeaderCurrency => 'Currency';
+
+  @override
+  String get csvHeaderNote => 'Note';
+
+  @override
+  String get csvTypeIncome => 'Income';
+
+  @override
+  String get csvTypeExpense => 'Expense';
+
+  @override
+  String get csvTotalIncome => 'Total income';
+
+  @override
+  String get csvTotalExpense => 'Total expenses';
+
+  @override
+  String get csvBalance => 'Balance';
+
+  @override
+  String get csvExportFileName => 'finance';
 }
