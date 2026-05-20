@@ -7,7 +7,6 @@ import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/transaction_card.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/transaction_provider.dart';
-import '../transactions/add_transaction_sheet.dart';
 import 'widgets/balance_card.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -130,9 +129,6 @@ class HomeScreen extends StatelessWidget {
                             illustration: EmptyIllustration.transactions,
                             title: l10n.emptyTransactionsTitle,
                             subtitle: l10n.emptyTransactionsSubtitle,
-                            buttonLabel: l10n.homeAddTransaction,
-                            onButtonPressed: () =>
-                                AddTransactionSheet.show(context),
                           )
                         else
                           ...provider.recentTransactions

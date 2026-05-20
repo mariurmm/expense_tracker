@@ -11,7 +11,6 @@ import '../../core/widgets/period_selector.dart';
 import '../../core/widgets/transaction_card.dart';
 import '../../data/models/transaction_model.dart';
 import '../../providers/transaction_provider.dart';
-import 'add_transaction_sheet.dart';
 
 class TransactionsScreen extends StatelessWidget {
   const TransactionsScreen({super.key});
@@ -42,9 +41,7 @@ class TransactionsScreen extends StatelessWidget {
                         illustration: EmptyIllustration.transactions,
                         title: l10n.emptyTransactionsTitle,
                         subtitle: l10n.emptyTransactionsSubtitle,
-                        buttonLabel: l10n.homeAddTransaction,
-                        onButtonPressed: () =>
-                            AddTransactionSheet.show(context),
+                        
                       )
                     : _GroupedList(
                         transactions: provider.filteredTransactions,
@@ -97,56 +94,84 @@ class _Header extends StatelessWidget {
             current: provider.periodFilter,
             onChanged: provider.setPeriodFilter,
           ),
-          if (provider.periodFilter == PeriodFilter.month) ...[
+          if (provider.periodFilter == PeriodFilter.week) ...[
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: provider.previousMonth,
-                  icon: Icon(
-                    Icons.chevron_left,
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimary,
-                    size: 28,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: isDark
-                        ? AppColors.cardBackgroundDark
-                        : AppColors.background,
-                  ),
-                ),
-                Text(
-                  Formatters.formatMonth(provider.selectedMonth),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimary,
-                  ),
-                ),
-                IconButton(
-                  onPressed: provider.nextMonth,
-                  icon: Icon(
-                    Icons.chevron_right,
-                    color: isDark
-                        ? AppColors.textPrimaryDark
-                        : AppColors.textPrimary,
-                    size: 28,
-                  ),
-                  style: IconButton.styleFrom(
-                    backgroundColor: isDark
-                        ? AppColors.cardBackgroundDark
-                        : AppColors.background,
-                  ),
-                ),
-              ],
+            _PeriodNavRow(
+              label: Formatters.formatWeek(
+                provider.selectedWeekStart,
+                Localizations.localeOf(context).toString(),
+              ),
+              onPrevious: provider.previousWeek,
+              onNext: provider.nextWeek,
+              isDark: isDark,
+            ),
+          ] else if (provider.periodFilter == PeriodFilter.month) ...[
+            const SizedBox(height: 10),
+            _PeriodNavRow(
+              label: Formatters.formatMonth(provider.selectedMonth),
+              onPrevious: provider.previousMonth,
+              onNext: provider.nextMonth,
+              isDark: isDark,
+            ),
+          ] else if (provider.periodFilter == PeriodFilter.year) ...[
+            const SizedBox(height: 10),
+            _PeriodNavRow(
+              label: Formatters.formatYear(provider.selectedYear),
+              onPrevious: provider.previousYear,
+              onNext: provider.nextYear,
+              isDark: isDark,
             ),
           ],
         ],
       ),
+    );
+  }
+}
+
+class _PeriodNavRow extends StatelessWidget {
+  const _PeriodNavRow({
+    required this.label,
+    required this.onPrevious,
+    required this.onNext,
+    required this.isDark,
+  });
+
+  final String label;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final btnBg =
+        isDark ? AppColors.cardBackgroundDark : AppColors.background;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          onPressed: onPrevious,
+          icon: Icon(Icons.chevron_left, color: iconColor, size: 28),
+          style: IconButton.styleFrom(backgroundColor: btnBg),
+        ),
+        Expanded(
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: iconColor,
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: onNext,
+          icon: Icon(Icons.chevron_right, color: iconColor, size: 28),
+          style: IconButton.styleFrom(backgroundColor: btnBg),
+        ),
+      ],
     );
   }
 }

@@ -48,7 +48,6 @@ class ReportsProvider extends ChangeNotifier {
   List<String> _barLabels = [];
   double _totalExpense = 0;
   double _totalIncome = 0;
-  double _maxBarValue = 0;
 
   // ---- public getters ----
 
@@ -60,8 +59,18 @@ class ReportsProvider extends ChangeNotifier {
   double get totalIncome => _totalIncome;
   bool get hasExpenses => _pieSlices.isNotEmpty;
 
-  /// Upper bound for the bar chart Y axis (with 25 % head-room).
-  double get maxY => _maxBarValue > 0 ? _maxBarValue * 1.25 : 1000;
+  /// Raw maximum toY across all bar rods in the current period.
+  /// The screen applies its own headroom on top of this value.
+  double get maxY {
+    if (_barGroups.isEmpty) return 0;
+    var max = 0.0;
+    for (final group in _barGroups) {
+      for (final rod in group.barRods) {
+        if (rod.toY > max) max = rod.toY;
+      }
+    }
+    return max;
+  }
 
   // ---- public methods ----
 
@@ -92,12 +101,6 @@ class ReportsProvider extends ChangeNotifier {
     _pieSlices = _buildPieSlices(filtered);
     _barLabels = _buildBarLabels();
     _barGroups = _buildBarGroups(filtered);
-    _maxBarValue = _barGroups.isEmpty
-        ? 0
-        : _barGroups
-            .expand((g) => g.barRods)
-            .map((r) => r.toY)
-            .fold<double>(0, (m, v) => v > m ? v : m);
   }
 
   List<Transaction> _filterTransactions() {
@@ -235,14 +238,16 @@ class ReportsProvider extends ChangeNotifier {
   BarChartGroupData _makeGroup(int x, List<Transaction> txns,
       {required bool wide, int normalize = 1}) {
     final divisor = normalize.toDouble();
-    final income = txns
+    final rawIncome = txns
             .where((t) => t.type == TransactionType.income)
             .fold<double>(0, (s, t) => s + t.amount) /
         divisor;
-    final expense = txns
+    final rawExpense = txns
             .where((t) => t.type == TransactionType.expense)
             .fold<double>(0, (s, t) => s + t.amount) /
         divisor;
+    final income = rawIncome.isFinite && rawIncome >= 0 ? rawIncome : 0.0;
+    final expense = rawExpense.isFinite && rawExpense >= 0 ? rawExpense : 0.0;
     final w = wide ? 10.0 : 7.0;
     return BarChartGroupData(
       x: x,

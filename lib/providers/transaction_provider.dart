@@ -16,6 +16,8 @@ class TransactionProvider extends ChangeNotifier {
   List<Transaction> _allTransactions = [];
   List<Transaction> _monthTransactions = [];
   DateTime _selectedMonth = DateTime.now();
+  DateTime _selectedWeekStart = _currentWeekStart();
+  int _selectedYear = DateTime.now().year;
   PeriodFilter _periodFilter = PeriodFilter.month;
 
   List<Transaction> get allTransactions =>
@@ -23,7 +25,15 @@ class TransactionProvider extends ChangeNotifier {
   List<Transaction> get monthTransactions =>
       List.unmodifiable(_monthTransactions);
   DateTime get selectedMonth => _selectedMonth;
+  DateTime get selectedWeekStart => _selectedWeekStart;
+  int get selectedYear => _selectedYear;
   PeriodFilter get periodFilter => _periodFilter;
+
+  static DateTime _currentWeekStart() {
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+    return DateTime(monday.year, monday.month, monday.day);
+  }
 
   /// Last 5 transactions across all time, newest first.
   List<Transaction> get recentTransactions =>
@@ -52,20 +62,21 @@ class TransactionProvider extends ChangeNotifier {
 
   /// Transactions filtered by [_periodFilter] — used in TransactionsScreen.
   List<Transaction> get filteredTransactions {
-    final now = DateTime.now();
     switch (_periodFilter) {
       case PeriodFilter.week:
-        final start = DateTime(now.year, now.month, now.day)
-            .subtract(const Duration(days: 6));
-        return _allTransactions.where((t) {
-          final d = DateTime(t.date.year, t.date.month, t.date.day);
-          return !d.isBefore(start);
-        }).toList();
+        final weekEnd = _selectedWeekStart.add(const Duration(days: 6));
+        final endOfDay = DateTime(
+            weekEnd.year, weekEnd.month, weekEnd.day, 23, 59, 59);
+        return _allTransactions
+            .where((t) =>
+                !t.date.isBefore(_selectedWeekStart) &&
+                !t.date.isAfter(endOfDay))
+            .toList();
       case PeriodFilter.month:
         return _monthTransactions;
       case PeriodFilter.year:
         return _allTransactions
-            .where((t) => t.date.year == now.year)
+            .where((t) => t.date.year == _selectedYear)
             .toList();
     }
   }
@@ -94,6 +105,32 @@ class TransactionProvider extends ChangeNotifier {
   void setPeriodFilter(PeriodFilter filter) {
     if (_periodFilter == filter) return;
     _periodFilter = filter;
+    if (filter == PeriodFilter.week) {
+      _selectedWeekStart = _currentWeekStart();
+    } else if (filter == PeriodFilter.year) {
+      _selectedYear = DateTime.now().year;
+    }
+    notifyListeners();
+  }
+
+  void previousWeek() {
+    _selectedWeekStart =
+        _selectedWeekStart.subtract(const Duration(days: 7));
+    notifyListeners();
+  }
+
+  void nextWeek() {
+    _selectedWeekStart = _selectedWeekStart.add(const Duration(days: 7));
+    notifyListeners();
+  }
+
+  void previousYear() {
+    _selectedYear -= 1;
+    notifyListeners();
+  }
+
+  void nextYear() {
+    _selectedYear += 1;
     notifyListeners();
   }
 

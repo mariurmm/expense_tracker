@@ -413,106 +413,132 @@ class _BarSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final labels = reports.barLabels;
-    final maxY = reports.maxY;
-    final interval = maxY > 0 ? (maxY / 4).roundToDouble() : 250.0;
+    final groupCount = reports.barGroups.length;
+    final rawMax = reports.maxY;
+    final maxY = rawMax > 0 ? (rawMax * 1.2) : 100.0;
+    final interval = (maxY / 4).roundToDouble().clamp(1.0, double.infinity);
 
     return Column(
       children: [
-        AspectRatio(
-          aspectRatio: 1.5,
-          child: BarChart(
-            BarChartData(
-              barGroups: reports.barGroups,
-              maxY: maxY,
-              alignment: BarChartAlignment.spaceAround,
-              groupsSpace: 12,
-              gridData: const FlGridData(drawVerticalLine: false),
-              borderData: FlBorderData(show: false),
-              titlesData: FlTitlesData(
-                topTitles: const AxisTitles(),
-                rightTitles: const AxisTitles(),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 48,
-                    interval: interval,
-                    getTitlesWidget: (value, meta) {
-                      if (value == 0 || value == meta.max) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 4),
-                        child: Text(
-                          Formatters.formatCompact(value),
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      );
-                    },
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: AspectRatio(
+            aspectRatio: 1.5,
+            child: BarChart(
+              BarChartData(
+                barGroups: reports.barGroups,
+                minY: 0,
+                maxY: maxY,
+                alignment: BarChartAlignment.spaceAround,
+                groupsSpace: 12,
+                gridData: FlGridData(
+                  drawVerticalLine: false,
+                  horizontalInterval: interval,
+                  getDrawingHorizontalLine: (_) => FlLine(
+                    color: Colors.grey.shade200,
+                    strokeWidth: 1,
                   ),
                 ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 24,
-                    getTitlesWidget: (value, meta) {
-                      final i = value.toInt();
-                      if (i < 0 || i >= labels.length) {
-                        return const SizedBox.shrink();
-                      }
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: Text(
-                          labels[i],
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade600,
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey.shade300),
+                    left: BorderSide(color: Colors.grey.shade300),
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(),
+                  rightTitles: const AxisTitles(),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 52,
+                      interval: interval,
+                      getTitlesWidget: (value, meta) {
+                        if (value == meta.max) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: Text(
+                            Formatters.formatCompact(value),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
+                        );
+                      },
+                    ),
+                  ),
+                  // Bottom labels are rendered manually below the chart so
+                  // they align with spaceAround bar positions.
+                  bottomTitles: const AxisTitles(),
+                ),
+                barTouchData: BarTouchData(
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipColor: (_) => Colors.blueGrey.shade800,
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      final label = rodIndex == 0
+                          ? l10n.transactionIncome
+                          : l10n.transactionExpense;
+                      final amount = Formatters.formatCurrencyWith(
+                        rod.toY,
+                        locale: settings.currencyLocale,
+                        symbol: settings.currencySymbol,
+                      );
+                      return BarTooltipItem(
+                        '$label\n$amount',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                       );
                     },
                   ),
                 ),
               ),
-              barTouchData: BarTouchData(
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (_) => Colors.blueGrey.shade800,
-                  getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                    final label = rodIndex == 0
-                        ? l10n.transactionIncome
-                        : l10n.transactionExpense;
-                    final amount = Formatters.formatCurrencyWith(
-                      rod.toY,
-                      locale: settings.currencyLocale,
-                      symbol: settings.currencySymbol,
-                    );
-                    return BarTooltipItem(
-                      '$label\n$amount',
-                      const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    );
-                  },
-                ),
-              ),
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeOut,
             ),
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOut,
+          ),
+        ),
+        // Manual x-axis labels aligned to spaceAround bar positions.
+        // A Row of Expanded cells places label i at (i+0.5)/n — identical
+        // to where spaceAround places bar i, so they stay in sync for any
+        // group count (week=7, month=4-5, year=12).
+        Padding(
+          padding: const EdgeInsets.only(left: 52, top: 4),
+          child: Row(
+            children: List.generate(groupCount, (i) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    labels[i],
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ),
+              );
+            }),
           ),
         ),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _LegendDot(
-                color: AppColors.income, label: l10n.transactionIncome),
+            _LegendItem(
+              color: AppColors.income,
+              label: l10n.transactionIncome,
+            ),
             const SizedBox(width: 20),
-            _LegendDot(
-                color: AppColors.expense, label: l10n.transactionExpense),
+            _LegendItem(
+              color: AppColors.expense,
+              label: l10n.transactionExpense,
+            ),
           ],
         ),
       ],
@@ -520,8 +546,8 @@ class _BarSection extends StatelessWidget {
   }
 }
 
-class _LegendDot extends StatelessWidget {
-  const _LegendDot({required this.color, required this.label});
+class _LegendItem extends StatelessWidget {
+  const _LegendItem({required this.color, required this.label});
 
   final Color color;
   final String label;
@@ -537,8 +563,10 @@ class _LegendDot extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 6),
-        Text(label,
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
       ],
     );
   }

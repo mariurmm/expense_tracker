@@ -4,6 +4,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:provider/provider.dart';
 
+import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_shell.dart';
 import 'data/datasources/category_local_datasource.dart';
@@ -15,6 +16,7 @@ import 'data/repositories/category_repository.dart';
 import 'data/repositories/settings_repository.dart';
 import 'data/repositories/transaction_repository.dart';
 import 'di/injection.dart';
+import 'features/splash/splash_screen.dart';
 import 'providers/category_provider.dart';
 import 'providers/reports_provider.dart';
 import 'providers/settings_provider.dart';
@@ -75,6 +77,7 @@ class App extends StatelessWidget {
       builder: (context, settings, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          scrollBehavior: const AppScrollBehavior(),
           locale: settings.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -82,6 +85,9 @@ class App extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: settings.themeMode,
           home: const AppShell(),
+          builder: (context, child) {
+            return SplashScreen(child: child ?? const SizedBox.shrink());
+          },
         );
       },
     );

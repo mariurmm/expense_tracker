@@ -24,6 +24,19 @@ class Formatters {
     ).format(amount);
   }
 
+  /// Returns "13 – 19 мая 2026" (same month) or "28 апр – 4 мая 2026" (cross-month).
+  static String formatWeek(DateTime weekStart, String locale) {
+    final weekEnd = weekStart.add(const Duration(days: 6));
+    final startDay = DateFormat('d', locale).format(weekStart);
+    if (weekStart.month == weekEnd.month) {
+      return '$startDay – ${DateFormat('d MMM yyyy', locale).format(weekEnd)}';
+    }
+    return '${DateFormat('d MMM', locale).format(weekStart)}'
+        ' – ${DateFormat('d MMM yyyy', locale).format(weekEnd)}';
+  }
+
+  static String formatYear(int year) => year.toString();
+
   /// Compact number label used for chart Y-axis ticks (no currency symbol).
   static String formatCompact(double amount) {
     if (amount >= 1000000) {
