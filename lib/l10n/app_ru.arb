@@ -27,6 +27,7 @@
   "transactionDeleteTitle": "Удалить транзакцию",
   "transactionDeleteMessage": "Вы уверены, что хотите удалить эту транзакцию?",
   "transactionAddTitle": "Новая транзакция",
+  "editTransactionTitle": "Редактировать транзакцию",
 
   "categoryFood": "Еда",
   "categoryTransport": "Транспорт",

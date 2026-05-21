@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:expense_tracker/core/constants/currencies.dart';
 import 'package:flutter/material.dart';
 
 import '../data/repositories/settings_repository.dart';
@@ -10,21 +9,21 @@ class SettingsProvider extends ChangeNotifier {
   final SettingsRepository _repository;
 
   String _userName = '';
-  String _currencySymbol = '₸';
-  String _currencyLocale = 'ru_RU';
+  String _currencyCode = 'KZT';
   Locale _locale = const Locale('ru');
   ThemeMode _themeMode = ThemeMode.system;
 
   String get userName => _userName;
-  String get currencySymbol => _currencySymbol;
-  String get currencyLocale => _currencyLocale;
+  String get currencyCode => _currencyCode;
+  String get currencySymbol => currencyByCode(_currencyCode).symbol;
+  String get currencyLocale => currencyByCode(_currencyCode).locale;
+  String get currencyName => currencyByCode(_currencyCode).name;
   Locale get locale => _locale;
   ThemeMode get themeMode => _themeMode;
 
   void load() {
     _userName = _repository.userName;
-    _currencySymbol = _repository.currencySymbol;
-    _currencyLocale = _repository.currencyLocale;
+    _currencyCode = _repository.currencyCode;
     _locale = Locale(_repository.locale);
     _themeMode = _themeModeFromString(_repository.themeMode);
     notifyListeners();
@@ -36,14 +35,9 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setCurrency({
-    required String symbol,
-    required String locale,
-  }) async {
-    await _repository.setCurrencySymbol(symbol);
-    await _repository.setCurrencyLocale(locale);
-    _currencySymbol = symbol;
-    _currencyLocale = locale;
+  Future<void> setCurrency(String code) async {
+    await _repository.setCurrencyCode(code);
+    _currencyCode = code;
     notifyListeners();
   }
 

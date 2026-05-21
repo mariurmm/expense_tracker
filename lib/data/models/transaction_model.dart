@@ -23,6 +23,7 @@ abstract class Transaction with _$Transaction {
     @HiveField(3) required String category,
     @HiveField(4) required DateTime date,
     @HiveField(5) String? note,
+    @HiveField(6) @Default('KZT') String currencyCode,
   }) = _Transaction;
 
   factory Transaction.fromJson(Map<String, dynamic> json) =>

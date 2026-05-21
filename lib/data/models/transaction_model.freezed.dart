@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Transaction {
 
-@HiveField(0) String get id;@HiveField(1) double get amount;@HiveField(2) TransactionType get type;@HiveField(3) String get category;@HiveField(4) DateTime get date;@HiveField(5) String? get note;
+@HiveField(0) String get id;@HiveField(1) double get amount;@HiveField(2) TransactionType get type;@HiveField(3) String get category;@HiveField(4) DateTime get date;@HiveField(5) String? get note;@HiveField(6) String get currencyCode;
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $TransactionCopyWith<Transaction> get copyWith => _$TransactionCopyWithImpl<Tran
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.date, date) || other.date == date)&&(identical(other.note, note) || other.note == note));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.date, date) || other.date == date)&&(identical(other.note, note) || other.note == note)&&(identical(other.currencyCode, currencyCode) || other.currencyCode == currencyCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,amount,type,category,date,note);
+int get hashCode => Object.hash(runtimeType,id,amount,type,category,date,note,currencyCode);
 
 @override
 String toString() {
-  return 'Transaction(id: $id, amount: $amount, type: $type, category: $category, date: $date, note: $note)';
+  return 'Transaction(id: $id, amount: $amount, type: $type, category: $category, date: $date, note: $note, currencyCode: $currencyCode)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $TransactionCopyWith<$Res>  {
   factory $TransactionCopyWith(Transaction value, $Res Function(Transaction) _then) = _$TransactionCopyWithImpl;
 @useResult
 $Res call({
-@HiveField(0) String id,@HiveField(1) double amount,@HiveField(2) TransactionType type,@HiveField(3) String category,@HiveField(4) DateTime date,@HiveField(5) String? note
+@HiveField(0) String id,@HiveField(1) double amount,@HiveField(2) TransactionType type,@HiveField(3) String category,@HiveField(4) DateTime date,@HiveField(5) String? note,@HiveField(6) String currencyCode
 });
 
 
@@ -65,7 +65,7 @@ class _$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? type = null,Object? category = null,Object? date = null,Object? note = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? amount = null,Object? type = null,Object? category = null,Object? date = null,Object? note = freezed,Object? currencyCode = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,8 @@ as double,type: null == type ? _self.type : type // ignore: cast_nullable_to_non
 as TransactionType,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,currencyCode: null == currencyCode ? _self.currencyCode : currencyCode // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -158,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@HiveField(0)  String id, @HiveField(1)  double amount, @HiveField(2)  TransactionType type, @HiveField(3)  String category, @HiveField(4)  DateTime date, @HiveField(5)  String? note)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@HiveField(0)  String id, @HiveField(1)  double amount, @HiveField(2)  TransactionType type, @HiveField(3)  String category, @HiveField(4)  DateTime date, @HiveField(5)  String? note, @HiveField(6)  String currencyCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
-return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that.note);case _:
+return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that.note,_that.currencyCode);case _:
   return orElse();
 
 }
@@ -179,10 +180,10 @@ return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@HiveField(0)  String id, @HiveField(1)  double amount, @HiveField(2)  TransactionType type, @HiveField(3)  String category, @HiveField(4)  DateTime date, @HiveField(5)  String? note)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@HiveField(0)  String id, @HiveField(1)  double amount, @HiveField(2)  TransactionType type, @HiveField(3)  String category, @HiveField(4)  DateTime date, @HiveField(5)  String? note, @HiveField(6)  String currencyCode)  $default,) {final _that = this;
 switch (_that) {
 case _Transaction():
-return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that.note);case _:
+return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that.note,_that.currencyCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +200,10 @@ return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@HiveField(0)  String id, @HiveField(1)  double amount, @HiveField(2)  TransactionType type, @HiveField(3)  String category, @HiveField(4)  DateTime date, @HiveField(5)  String? note)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@HiveField(0)  String id, @HiveField(1)  double amount, @HiveField(2)  TransactionType type, @HiveField(3)  String category, @HiveField(4)  DateTime date, @HiveField(5)  String? note, @HiveField(6)  String currencyCode)?  $default,) {final _that = this;
 switch (_that) {
 case _Transaction() when $default != null:
-return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that.note);case _:
+return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that.note,_that.currencyCode);case _:
   return null;
 
 }
@@ -214,7 +215,7 @@ return $default(_that.id,_that.amount,_that.type,_that.category,_that.date,_that
 @JsonSerializable()
 
 class _Transaction implements Transaction {
-  const _Transaction({@HiveField(0) required this.id, @HiveField(1) required this.amount, @HiveField(2) required this.type, @HiveField(3) required this.category, @HiveField(4) required this.date, @HiveField(5) this.note});
+  const _Transaction({@HiveField(0) required this.id, @HiveField(1) required this.amount, @HiveField(2) required this.type, @HiveField(3) required this.category, @HiveField(4) required this.date, @HiveField(5) this.note, @HiveField(6) this.currencyCode = 'KZT'});
   factory _Transaction.fromJson(Map<String, dynamic> json) => _$TransactionFromJson(json);
 
 @override@HiveField(0) final  String id;
@@ -223,6 +224,7 @@ class _Transaction implements Transaction {
 @override@HiveField(3) final  String category;
 @override@HiveField(4) final  DateTime date;
 @override@HiveField(5) final  String? note;
+@override@JsonKey()@HiveField(6) final  String currencyCode;
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
@@ -237,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.date, date) || other.date == date)&&(identical(other.note, note) || other.note == note));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Transaction&&(identical(other.id, id) || other.id == id)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.category, category) || other.category == category)&&(identical(other.date, date) || other.date == date)&&(identical(other.note, note) || other.note == note)&&(identical(other.currencyCode, currencyCode) || other.currencyCode == currencyCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,amount,type,category,date,note);
+int get hashCode => Object.hash(runtimeType,id,amount,type,category,date,note,currencyCode);
 
 @override
 String toString() {
-  return 'Transaction(id: $id, amount: $amount, type: $type, category: $category, date: $date, note: $note)';
+  return 'Transaction(id: $id, amount: $amount, type: $type, category: $category, date: $date, note: $note, currencyCode: $currencyCode)';
 }
 
 
@@ -257,7 +259,7 @@ abstract mixin class _$TransactionCopyWith<$Res> implements $TransactionCopyWith
   factory _$TransactionCopyWith(_Transaction value, $Res Function(_Transaction) _then) = __$TransactionCopyWithImpl;
 @override @useResult
 $Res call({
-@HiveField(0) String id,@HiveField(1) double amount,@HiveField(2) TransactionType type,@HiveField(3) String category,@HiveField(4) DateTime date,@HiveField(5) String? note
+@HiveField(0) String id,@HiveField(1) double amount,@HiveField(2) TransactionType type,@HiveField(3) String category,@HiveField(4) DateTime date,@HiveField(5) String? note,@HiveField(6) String currencyCode
 });
 
 
@@ -274,7 +276,7 @@ class __$TransactionCopyWithImpl<$Res>
 
 /// Create a copy of Transaction
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? type = null,Object? category = null,Object? date = null,Object? note = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? amount = null,Object? type = null,Object? category = null,Object? date = null,Object? note = freezed,Object? currencyCode = null,}) {
   return _then(_Transaction(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
@@ -282,7 +284,8 @@ as double,type: null == type ? _self.type : type // ignore: cast_nullable_to_non
 as TransactionType,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
 as DateTime,note: freezed == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,currencyCode: null == currencyCode ? _self.currencyCode : currencyCode // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

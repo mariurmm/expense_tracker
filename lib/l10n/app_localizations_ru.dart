@@ -82,6 +82,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get transactionAddTitle => 'Новая транзакция';
 
   @override
+  String get editTransactionTitle => 'Редактировать транзакцию';
+
+  @override
   String get categoryFood => 'Еда';
 
   @override

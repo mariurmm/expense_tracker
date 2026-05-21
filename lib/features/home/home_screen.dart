@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/services/exchange_rate_service.dart';
 import '../../core/widgets/empty_state_widget.dart';
 import '../../core/widgets/transaction_card.dart';
+import '../../di/injection.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/transaction_provider.dart';
 import 'widgets/balance_card.dart';
@@ -22,7 +24,15 @@ class HomeScreen extends StatelessWidget {
       body: Consumer<TransactionProvider>(
         builder: (context, provider, _) {
           return RefreshIndicator(
-            onRefresh: () async => provider.loadTransactions(),
+            onRefresh: () async {
+              // Clear exchange rate cache and reload fresh rates
+              final exchangeService = getIt<ExchangeRateService>();
+              final settings = context.read<SettingsProvider>();
+              exchangeService.clearCache();
+              await exchangeService.preload(settings.currencyCode);
+              provider.loadTransactions();
+              await provider.recalculateConvertedTotals();
+            },
             child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
@@ -97,13 +107,16 @@ class HomeScreen extends StatelessWidget {
                           income: provider.totalIncome,
                           expense: provider.totalExpense,
                           month: provider.selectedMonth,
+                          isLoading: provider.ratesLoading,
+                          balancePerCurrency: provider.balancePerCurrency,
+                          hasLiveRates: getIt<ExchangeRateService>().hasLiveRates,
                         ),
                       ],
                     ),
                   ),
                 ),
                 SliverPadding(
-                  padding: EdgeInsets.fromLTRB(20, 24, 20, MediaQuery.of(context).padding.bottom + 120),
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

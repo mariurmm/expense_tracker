@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/currencies.dart';
 import '../../core/utils/category_name_resolver.dart';
 import '../../data/models/category_model.dart';
 import '../../data/models/transaction_model.dart';
@@ -37,9 +40,17 @@ const _pickerIcons = <IconData>[
 ];
 
 class AddTransactionSheet extends StatefulWidget {
-  const AddTransactionSheet({super.key});
+  const AddTransactionSheet({this.transaction, super.key});
 
-  static Future<void> show(BuildContext context) {
+  /// If provided, the sheet opens in edit mode pre-filled with this data.
+  final Transaction? transaction;
+
+  bool get isEditing => transaction != null;
+
+  static Future<void> show(
+    BuildContext context, {
+    Transaction? transaction,
+  }) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -48,7 +59,7 @@ class AddTransactionSheet extends StatefulWidget {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: const AddTransactionSheet(),
+        child: AddTransactionSheet(transaction: transaction),
       ),
     );
   }
@@ -70,6 +81,21 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
   String? _categoryError;
 
   @override
+  void initState() {
+    super.initState();
+    final t = widget.transaction;
+    if (t != null) {
+      _type = t.type;
+      _amountController.text = t.amount == t.amount.truncateToDouble()
+          ? t.amount.toStringAsFixed(0)
+          : t.amount.toStringAsFixed(2);
+      _selectedCategory = t.category;
+      _selectedDate = t.date;
+      _noteController.text = t.note ?? '';
+    }
+  }
+
+  @override
   void dispose() {
     _amountController.dispose();
     _noteController.dispose();
@@ -78,6 +104,13 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
 
   Color get _activeColor =>
       _type == TransactionType.income ? AppColors.income : AppColors.expense;
+
+  String get _currencySymbol {
+    if (widget.isEditing) {
+      return currencyByCode(widget.transaction!.currencyCode).symbol;
+    }
+    return context.read<SettingsProvider>().currencySymbol;
+  }
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
@@ -119,19 +152,35 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
 
     setState(() => _isSaving = true);
 
-    final transaction = Transaction(
-      id: const Uuid().v4(),
-      amount: amount!,
-      type: _type,
-      category: _selectedCategory!,
-      date: _selectedDate,
-      note: _noteController.text.trim().isEmpty
-          ? null
-          : _noteController.text.trim(),
-    );
-
     try {
-      await context.read<TransactionProvider>().addTransaction(transaction);
+      if (widget.isEditing) {
+        final updated = widget.transaction!.copyWith(
+          amount: amount!,
+          type: _type,
+          category: _selectedCategory!,
+          date: _selectedDate,
+          note: _noteController.text.trim().isEmpty
+              ? null
+              : _noteController.text.trim(),
+          // currencyCode intentionally kept unchanged
+        );
+        await context.read<TransactionProvider>().updateTransaction(updated);
+      } else {
+        final activeCurrencyCode =
+            context.read<SettingsProvider>().currencyCode;
+        final transaction = Transaction(
+          id: const Uuid().v4(),
+          amount: amount!,
+          type: _type,
+          category: _selectedCategory!,
+          date: _selectedDate,
+          note: _noteController.text.trim().isEmpty
+              ? null
+              : _noteController.text.trim(),
+          currencyCode: activeCurrencyCode,
+        );
+        await context.read<TransactionProvider>().addTransaction(transaction);
+      }
       if (mounted) Navigator.pop(context);
     } on Exception catch (_) {
       if (mounted) {
@@ -143,6 +192,38 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
         );
       }
     }
+  }
+
+  void _confirmDelete() {
+    final l10n = AppLocalizations.of(context);
+    unawaited(
+      showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.transactionDeleteTitle),
+          content: Text(l10n.transactionDeleteMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.buttonCancel),
+            ),
+            TextButton(
+              style:
+                  TextButton.styleFrom(foregroundColor: AppColors.expense),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                final provider = context.read<TransactionProvider>();
+                final id = widget.transaction!.id;
+                await provider.deleteTransaction(id);
+                if (!mounted) return;
+                Navigator.pop(context);
+              },
+              child: Text(l10n.buttonDelete),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _showNewCategoryDialog() async {
@@ -301,7 +382,6 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
     final l10n = AppLocalizations.of(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final settings = context.watch<SettingsProvider>();
     final categoryProvider = context.watch<CategoryProvider>();
     final categories = _type == TransactionType.expense
         ? categoryProvider.expenseCategories
@@ -333,7 +413,35 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
+
+            // Title row — title on left, delete button on right in edit mode
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.isEditing
+                        ? l10n.editTransactionTitle
+                        : l10n.transactionAddTitle,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? AppColors.textPrimaryDark
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                if (widget.isEditing)
+                  IconButton(
+                    onPressed: _confirmDelete,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    color: AppColors.expense,
+                    tooltip: l10n.buttonDelete,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 12),
 
             // Income / Expense toggle — custom pill style
             Center(
@@ -435,7 +543,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet> {
                         .withValues(alpha: 0.4),
                     letterSpacing: -0.5,
                   ),
-                  prefixText: '${settings.currencySymbol} ',
+                  prefixText: '$_currencySymbol ',
                   prefixStyle: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,

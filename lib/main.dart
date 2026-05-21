@@ -1,9 +1,12 @@
+import 'dart:async' show unawaited;
+
 import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:provider/provider.dart';
 
+import 'core/services/exchange_rate_service.dart';
 import 'core/theme/app_scroll_behavior.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/app_shell.dart';
@@ -47,9 +50,26 @@ Future<void> main() async {
 
   FlutterNativeSplash.remove();
 
-  final txProvider = TransactionProvider(txRepo)..loadTransactions();
+  // Create providers that need cross-wiring before runApp.
+  final settingsProvider = SettingsProvider(settingsRepo)..load();
   final reportsProvider = ReportsProvider(txRepo, catRepo)..load();
-  txProvider.reportsProvider = reportsProvider;
+  final exchangeRateService = getIt<ExchangeRateService>();
+
+  final txProvider = TransactionProvider(txRepo)
+    ..reportsProvider = reportsProvider
+    ..exchangeRateService = exchangeRateService
+    ..settingsProvider = settingsProvider
+    ..loadTransactions();
+
+  // Preload rates for the active currency at startup.
+  unawaited(exchangeRateService.preload(settingsProvider.currencyCode));
+
+  // Recalculate whenever the active currency changes.
+  settingsProvider.addListener(() {
+    txProvider.settingsProvider = settingsProvider;
+    unawaited(exchangeRateService.preload(settingsProvider.currencyCode));
+    unawaited(txProvider.recalculateConvertedTotals());
+  });
 
   runApp(
     MultiProvider(
@@ -58,9 +78,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => CategoryProvider(catRepo)..loadCategories(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => SettingsProvider(settingsRepo)..load(),
-        ),
+        ChangeNotifierProvider.value(value: settingsProvider),
         ChangeNotifierProvider.value(value: reportsProvider),
       ],
       child: const App(),

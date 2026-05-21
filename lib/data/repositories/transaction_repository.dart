@@ -14,6 +14,10 @@ class TransactionRepository {
     await _datasource.put(transaction);
   }
 
+  Future<void> updateTransaction(Transaction transaction) async {
+    await _datasource.put(transaction);
+  }
+
   Future<void> deleteTransaction(String id) async {
     await _datasource.delete(id);
   }

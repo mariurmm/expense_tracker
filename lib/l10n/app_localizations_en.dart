@@ -82,6 +82,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionAddTitle => 'New Transaction';
 
   @override
+  String get editTransactionTitle => 'Edit Transaction';
+
+  @override
   String get categoryFood => 'Food';
 
   @override

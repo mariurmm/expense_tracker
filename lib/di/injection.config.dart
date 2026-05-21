@@ -9,6 +9,8 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:expense_tracker/core/services/exchange_rate_service.dart'
+    as _i34;
 import 'package:expense_tracker/core/services/export_service.dart' as _i415;
 import 'package:expense_tracker/data/datasources/category_local_datasource.dart'
     as _i832;
@@ -35,6 +37,9 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
+    gh.lazySingleton<_i34.ExchangeRateService>(
+      () => _i34.ExchangeRateService(),
+    );
     gh.lazySingleton<_i832.CategoryLocalDatasource>(
       () => _i832.CategoryLocalDatasource(),
     );

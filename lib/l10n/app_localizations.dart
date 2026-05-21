@@ -242,6 +242,12 @@ abstract class AppLocalizations {
   /// **'New Transaction'**
   String get transactionAddTitle;
 
+  /// No description provided for @editTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Transaction'**
+  String get editTransactionTitle;
+
   /// No description provided for @categoryFood.
   ///
   /// In en, this message translates to:

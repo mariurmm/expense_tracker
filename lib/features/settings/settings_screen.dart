@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/currencies.dart';
 import '../../core/services/export_service.dart';
 import '../../data/datasources/transaction_local_datasource.dart';
 import '../../data/models/transaction_model.dart';
@@ -16,23 +17,6 @@ import '../../providers/category_provider.dart';
 import '../../providers/reports_provider.dart';
 import '../../providers/settings_provider.dart';
 import '../../providers/transaction_provider.dart';
-
-class _CurrencyOption {
-  const _CurrencyOption(
-      {required this.symbol, required this.locale, required this.label});
-
-  final String symbol;
-  final String locale;
-  final String label;
-}
-
-const _currencies = [
-  _CurrencyOption(symbol: '₸', locale: 'ru_RU', label: '₸  Kazakhstani Tenge'),
-  _CurrencyOption(symbol: '₽', locale: 'ru_RU', label: '₽  Russian Ruble'),
-  _CurrencyOption(symbol: r'$', locale: 'en_US', label: r'$  US Dollar'),
-  _CurrencyOption(symbol: '€', locale: 'de_DE', label: '€  Euro'),
-  _CurrencyOption(symbol: '£', locale: 'en_GB', label: '£  British Pound'),
-];
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -163,12 +147,11 @@ class SettingsScreen extends StatelessWidget {
                         color: AppColors.primary),
                     title: Text(l10n.settingsCurrency),
                     subtitle: Text(
-                      '${settings.currencySymbol}  '
-                      '${_currencies.firstWhere((c) => c.locale == settings.currencyLocale && c.symbol == settings.currencySymbol, orElse: () => _currencies.first).label.split('  ').last}',
+                      '${settings.currencySymbol}  ${settings.currencyName}',
                     ),
                     trailing: const Icon(Icons.chevron_right,
                         color: AppColors.textSecondary),
-                    onTap: () => _showCurrencyPicker(context, settings),
+                    onTap: () => _showCurrencyPicker(context),
                   ),
                 ]),
                 const SizedBox(height: 20),
@@ -284,43 +267,80 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  void _showCurrencyPicker(BuildContext context, SettingsProvider settings) {
-    final l10n = AppLocalizations.of(context);
+  void _showCurrencyPicker(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     unawaited(showModalBottomSheet<void>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.settingsSelectCurrency,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            ..._currencies.map((c) {
-              final selected = settings.currencySymbol == c.symbol &&
-                  settings.currencyLocale == c.locale;
-              return ListTile(
-                title: Text(c.label),
-                trailing: selected
-                    ? const Icon(Icons.check, color: AppColors.primary)
-                    : null,
-                onTap: () async {
-                  await settings.setCurrency(symbol: c.symbol, locale: c.locale);
-                  if (!context.mounted) return;
-                  Navigator.pop(context);
-                },
-              );
-            }),
-          ],
-        ),
-      ),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final settings = ctx.read<SettingsProvider>();
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : AppColors.surface,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.dividerDark : AppColors.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...kSupportedCurrencies.map((c) {
+                final isSelected = c.code == settings.currencyCode;
+                return ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.12)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        c.symbol,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected
+                              ? AppColors.primary
+                              : (isDark
+                                  ? AppColors.textPrimaryDark
+                                  : AppColors.textPrimary),
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(c.name),
+                  subtitle: Text(c.code),
+                  trailing: isSelected
+                      ? const Icon(Icons.check_circle,
+                          color: AppColors.primary)
+                      : null,
+                  onTap: () {
+                    unawaited(
+                      context.read<SettingsProvider>().setCurrency(c.code),
+                    );
+                    Navigator.pop(ctx);
+                  },
+                );
+              }),
+              SizedBox(
+                height: MediaQuery.of(context).padding.bottom + 16,
+              ),
+            ],
+          ),
+        );
+      },
     ));
   }
 

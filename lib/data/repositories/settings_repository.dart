@@ -10,19 +10,15 @@ class SettingsRepository {
   final SettingsLocalDatasource _datasource;
 
   String get userName => _datasource.get('userName', defaultValue: '');
-  String get currencySymbol =>
-      _datasource.get('currencySymbol', defaultValue: '₸');
-  String get currencyLocale =>
-      _datasource.get('currencyLocale', defaultValue: 'ru_RU');
+  String get currencyCode =>
+      _datasource.get('currencyCode', defaultValue: 'KZT');
   String get locale => _datasource.get('locale', defaultValue: 'ru');
   String get themeMode =>
       _datasource.get('themeMode', defaultValue: 'system');
 
   Future<void> setUserName(String name) => _datasource.put('userName', name);
-  Future<void> setCurrencySymbol(String symbol) =>
-      _datasource.put('currencySymbol', symbol);
-  Future<void> setCurrencyLocale(String locale) =>
-      _datasource.put('currencyLocale', locale);
+  Future<void> setCurrencyCode(String code) =>
+      _datasource.put('currencyCode', code);
   Future<void> setLocale(String languageCode) =>
       _datasource.put('locale', languageCode);
   Future<void> setThemeMode(String mode) =>
