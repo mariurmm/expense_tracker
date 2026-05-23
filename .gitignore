@@ -39,6 +39,8 @@ macos/Flutter/Flutter-Release.xcconfig
 
 # Hive local database files (generated at runtime on the device, never in the project dir)
 *.hive
+*.lock
+!pubspec.lock
 
 # IDE
 .idea/
@@ -61,8 +63,9 @@ secrets.dart
 coverage/
 *.lcov
 
-# Generated files (Hive adapters — раскомментируй если НЕ хочешь коммитить)
+# Generated files — keep commented: commit for reproducible builds
 # *.g.dart
+# *.freezed.dart
 
 # OS
 .DS_Store
