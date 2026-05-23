@@ -486,6 +486,9 @@ class _BarSection extends StatelessWidget {
                 ),
                 barTouchData: BarTouchData(
                   touchTooltipData: BarTouchTooltipData(
+                    fitInsideHorizontally: true,
+                    fitInsideVertically: true,
+                    maxContentWidth: 160,
                     getTooltipColor: (_) => Colors.blueGrey.shade800,
                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
                       final label = rodIndex == 0

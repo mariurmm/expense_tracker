@@ -170,19 +170,19 @@ class TransactionProvider extends ChangeNotifier {
   Future<void> addTransaction(Transaction transaction) async {
     await _repository.addTransaction(transaction);
     loadTransactions();
-    _reportsProvider?.load();
+    unawaited(_reportsProvider?.load() ?? Future.value());
   }
 
   Future<void> updateTransaction(Transaction transaction) async {
     await _repository.updateTransaction(transaction);
     loadTransactions();
-    _reportsProvider?.load();
+    unawaited(_reportsProvider?.load() ?? Future.value());
   }
 
   Future<void> deleteTransaction(String id) async {
     await _repository.deleteTransaction(id);
     loadTransactions();
-    _reportsProvider?.load();
+    unawaited(_reportsProvider?.load() ?? Future.value());
   }
 
   // ── Period filter ─────────────────────────────────────────────────────────

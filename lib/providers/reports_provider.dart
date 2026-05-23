@@ -4,10 +4,12 @@ import 'package:intl/intl.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/enums/period_filter.dart';
+import '../core/services/exchange_rate_service.dart';
 import '../data/models/category_model.dart';
 import '../data/models/transaction_model.dart';
 import '../data/repositories/category_repository.dart';
 import '../data/repositories/transaction_repository.dart';
+import 'settings_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Data class for pie chart slices (no Widget code)
@@ -34,10 +36,17 @@ class PieSliceData {
 // ---------------------------------------------------------------------------
 
 class ReportsProvider extends ChangeNotifier {
-  ReportsProvider(this._txRepo, this._catRepo);
+  ReportsProvider(
+    this._txRepo,
+    this._catRepo,
+    this._exchangeRateService,
+    this._settingsProvider,
+  );
 
   final TransactionRepository _txRepo;
   final CategoryRepository _catRepo;
+  final ExchangeRateService _exchangeRateService;
+  final SettingsProvider _settingsProvider;
 
   PeriodFilter _periodFilter = PeriodFilter.month;
   List<Transaction> _allTransactions = [];
@@ -74,33 +83,66 @@ class ReportsProvider extends ChangeNotifier {
 
   // ---- public methods ----
 
-  void load() {
+  Future<void> load() async {
     _allTransactions = _txRepo.getAllTransactions();
     _categories = _catRepo.getAllCategories();
-    _recompute();
+
+    final codes = _allTransactions.map((t) => t.currencyCode).toSet()
+      ..add(_settingsProvider.currencyCode);
+    for (final code in codes) {
+      await _exchangeRateService.preload(code);
+    }
+
+    await _recompute();
     notifyListeners();
   }
 
-  void setPeriodFilter(PeriodFilter filter) {
+  Future<void> setPeriodFilter(PeriodFilter filter) async {
     if (_periodFilter == filter) return;
     _periodFilter = filter;
-    _recompute();
+
+    final codes = _allTransactions.map((t) => t.currencyCode).toSet()
+      ..add(_settingsProvider.currencyCode);
+    for (final code in codes) {
+      await _exchangeRateService.preload(code);
+    }
+
+    await _recompute();
     notifyListeners();
   }
 
   // ---- private helpers ----
 
-  void _recompute() {
+  /// Converts every transaction's amount to the active currency and returns
+  /// a new list with the converted amounts substituted in.
+  Future<List<Transaction>> _convertAmounts(List<Transaction> txns) async {
+    final target = _settingsProvider.currencyCode;
+    return Future.wait(
+      txns.map((t) async {
+        if (t.currencyCode == target) return t;
+        final converted = await _exchangeRateService.convert(
+          t.amount,
+          t.currencyCode,
+          target,
+        );
+        return t.copyWith(amount: converted, currencyCode: target);
+      }),
+    );
+  }
+
+  Future<void> _recompute() async {
     final filtered = _filterTransactions();
-    _totalExpense = filtered
+    final converted = await _convertAmounts(filtered);
+
+    _totalExpense = converted
         .where((t) => t.type == TransactionType.expense)
         .fold<double>(0, (s, t) => s + t.amount);
-    _totalIncome = filtered
+    _totalIncome = converted
         .where((t) => t.type == TransactionType.income)
         .fold<double>(0, (s, t) => s + t.amount);
-    _pieSlices = _buildPieSlices(filtered);
+    _pieSlices = _buildPieSlices(converted);
     _barLabels = _buildBarLabels();
-    _barGroups = _buildBarGroups(filtered);
+    _barGroups = _buildBarGroups(converted);
   }
 
   List<Transaction> _filterTransactions() {

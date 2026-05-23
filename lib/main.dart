@@ -52,8 +52,10 @@ Future<void> main() async {
 
   // Create providers that need cross-wiring before runApp.
   final settingsProvider = SettingsProvider(settingsRepo)..load();
-  final reportsProvider = ReportsProvider(txRepo, catRepo)..load();
   final exchangeRateService = getIt<ExchangeRateService>();
+  final reportsProvider =
+      ReportsProvider(txRepo, catRepo, exchangeRateService, settingsProvider);
+  unawaited(reportsProvider.load());
 
   final txProvider = TransactionProvider(txRepo)
     ..reportsProvider = reportsProvider
@@ -61,14 +63,11 @@ Future<void> main() async {
     ..settingsProvider = settingsProvider
     ..loadTransactions();
 
-  // Preload rates for the active currency at startup.
-  unawaited(exchangeRateService.preload(settingsProvider.currencyCode));
-
   // Recalculate whenever the active currency changes.
   settingsProvider.addListener(() {
     txProvider.settingsProvider = settingsProvider;
-    unawaited(exchangeRateService.preload(settingsProvider.currencyCode));
     unawaited(txProvider.recalculateConvertedTotals());
+    unawaited(reportsProvider.load());
   });
 
   runApp(
