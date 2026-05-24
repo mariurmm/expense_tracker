@@ -63,9 +63,9 @@ secrets.dart
 coverage/
 *.lcov
 
-# Generated files — keep commented: commit for reproducible builds
-# *.g.dart
-# *.freezed.dart
+# Generated files — run `dart run build_runner build --delete-conflicting-outputs` after clone
+*.g.dart
+*.freezed.dart
 
 # OS
 .DS_Store
