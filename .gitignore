@@ -67,6 +67,9 @@ coverage/
 *.g.dart
 *.freezed.dart
 lib/di/injection.config.dart
+lib/l10n/app_localizations.dart
+lib/l10n/app_localizations_en.dart
+lib/l10n/app_localizations_ru.dart
 
 # OS
 .DS_Store
