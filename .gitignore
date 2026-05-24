@@ -66,6 +66,7 @@ coverage/
 # Generated files — run `dart run build_runner build --delete-conflicting-outputs` after clone
 *.g.dart
 *.freezed.dart
+lib/di/injection.config.dart
 
 # OS
 .DS_Store
